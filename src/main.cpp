@@ -3,6 +3,7 @@
 
 
 bool quit = false;
+constexpr float _timeout = 0.25;
 
 
 void init();
@@ -26,9 +27,16 @@ int main()
 
 void init()
 {
+    // curses initializations
     initscr();
     cbreak();
     nonl();
     keypad(stdscr, TRUE);
     noecho();
+    timeout(_timeout);
+}
+
+void input()
+{
+    int c = getch();
 }

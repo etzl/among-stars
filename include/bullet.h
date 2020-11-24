@@ -4,7 +4,7 @@
 
 #include <objects.h>
 
-constexpr int _bulletspeed = 1; // defining anywhere else requires transferring
+constexpr int _bulletspeed = 1;
 
 
 class Bullet : public Drawable_obj {
@@ -12,41 +12,13 @@ public:
     Bullet(int y, int x, Dir d) :Drawable_obj(y,x,_bulletspeed), direction{d}
     {}
 
-    Bullet(const Bullet& cp) = delete;
-    Bullet& operator=(const Bullet& cp) = delete;
-
-    Bullet(Bullet&& mv) :Drawable_obj(mv.y,mv.x,mv.speed), direction{mv.direction}
+    /* return 1 when passing the screen */
+    int update()
     {
-        mv.direction = Dir::none;
-        mv.y = 0;
-        mv.x = 0;
-        mv.speed = 0;
-    }
-    Bullet& operator=(Bullet&& mv)
-    {
-        y = mv.y;
-        x = mv.x;
-        speed = mv.speed;
-        direction = mv.direction;
-
-        mv.direction = Dir::none;
-        mv.y = 0;
-        mv.x = 0;
-        mv.speed = 0;
-
-        return *this;
-    }
-
-    void update()
-    {
-        switch (direction) {
-            case Dir::up:
-                y -= speed;
-                break;
-            case Dir::down:
-                y += speed;
-                break;
-        }
+        move(Dir::none, direction);
+        if (y < 0 || y > maxy)
+            return 1;
+        return 0;
     }
 
     void draw() const override
@@ -55,6 +27,7 @@ public:
     }
 private:
     Dir direction;
+    int maxy = getmaxy(stdscr);
 };
 
 

@@ -5,14 +5,59 @@
 #include "bullet.h"
 
 
-constexpr int _enemyspeed = 1;
+constexpr float _enemyspeed = .5;
 constexpr int _playerspeed = 1;
+constexpr int _player_maxhealth = 10;
+constexpr int _enemy_maxhealth = 1;
 
 
-class Enemy :public Drawable_obj {
+class Interactable :public Drawable_obj {
 public:
-    Enemy(const int y, const int x) :Drawable_obj(y,x,_enemyspeed)
+    Interactable(const int h, const int y, const int x, const float speed):
+    Drawable_obj(y, x, speed), health{h}
     {}
+
+    /* Compare only with positions */
+    bool operator==(const Interactable& com) const
+    {
+        return (x == com.x) && (y == com.y);
+    }
+    bool operator!=(const Interactable& com) const
+    {
+        return (x != com.x) || (y != com.y);
+    }
+    bool operator<(const Interactable& com) const
+    {
+        return (x < com.x) && (y < com.y);
+    }
+    bool operator>(const Interactable& com) const
+    { return (x > com.x) && (y > com.y); }
+
+    bool operator<=(const Interactable& com) const
+    { return (*this < com) || (*this == com); }
+
+    bool operator>=(const Interactable& com) const
+    { return (*this > com) || (*this == com); }
+
+
+
+    /* dead objects will handle by game manger */
+    int getdamage(int damage)
+    {
+        health -= damage;
+        if (health <= 0) // we are dead XD
+            return 1;
+        return 0;
+    }
+
+protected:
+    int health;
+};
+
+class Enemy :public Interactable {
+public:
+    Enemy(const int y, const int x) :Interactable(_enemy_maxhealth, y, x,
+    _enemyspeed) {}
 
     Bullet shoot()
     {
@@ -24,10 +69,10 @@ public:
     }
 };
 
-class Player : public Drawable_obj {
+class Player : public Interactable {
 public:
-    Player(const int y, const int x) :Drawable_obj(y,x,_playerspeed)
-    {}
+    Player(const int y, const int x) :Interactable(_player_maxhealth, y, x,
+    _playerspeed) {}
 
     Bullet shoot()
     {

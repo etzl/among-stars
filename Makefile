@@ -9,7 +9,7 @@ CC := g++
 FLAGS := -lncurses -I$(INCDIR)
 
 # Target executable
-TARGET := star_wars
+TARGET := among_stars
 #############################
 
 # Needed files
