@@ -23,15 +23,11 @@ private:
 
 
 
-
 constexpr int _max_enemy_per_row = 3;
 constexpr int _min_enemy_per_row = 0;
 // A magic number so generation of enemies won't happen very often
-constexpr int _Magic_enemy_generation = 3;
-constexpr int _Player_initialx = 20;
-constexpr int _Player_initialy = 30;
-
-Player Game_manager::player = Player{_Player_initialy, _Player_initialx};
+constexpr int _Magic_enemy_generation = 5;
+constexpr int _Points_perenemy = 1;
 
 
 
@@ -61,10 +57,53 @@ void Game_manager::generate_enemies()
 
 void Game_manager::move_enemies()
 {
+    int index, realdistance;
     const int playerx = player.getx();
+    bool alignenemy = true;
+
     if (std::none_of(enemies.begin(), enemies.end(), [&](const Enemy& en) {
         return en.getx() == playerx;
     })) {
-        
+        alignenemy = false;
+        int lowest_dist = getmaxx(stdscr);
+
+
+        for (int i=0; i!=enemies.size(); ++i) {
+            const int curdistance = std::abs(enemies[i].getx() - playerx);
+            if (curdistance < lowest_dist) {
+                lowest_dist = curdistance;
+                realdistance = enemies[i].getx() - playerx;
+                index = i;
+            }
+        }
+    }
+
+    for (int i=0; i!=enemies.size(); ++i) {
+        if (!alignenemy && i == index) {
+            if (realdistance < 0)
+                enemies[index].move(Dir::right, Dir::down);
+            else // 0 < realdistance
+                enemies[index].move(Dir::left, Dir::down);
+            continue;
+        }
+        enemies[i].move(Dir::none, Dir::down);
+    }
+}
+
+void Game_manager::update()
+{
+    // update bullets position
+    std::remove_if(bullets.begin(), bullets.end(), [](Bullet& b){ return b.update(); });
+
+    // check if anyone is dead
+    std::remove_if(enemies.begin(), enemies.end(), [](Enemy& e){
+        if (e.gethealth() <= 0) {
+            Game_manager::player_points += _Points_perenemy;
+            return true;
+        }
+        return false;
+    });
+    if (Game_manager::player.gethealth() <= 0) {
+        // GAME OVER! implementation...
     }
 }

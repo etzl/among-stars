@@ -3,7 +3,7 @@
 
 
 
-// diagonally movements are going to be 45 degree
+// diagonally movements degree
 const float _sin = std::sin(45);
 const float _cos = std::cos(45);
 
