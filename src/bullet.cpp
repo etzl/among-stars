@@ -11,12 +11,16 @@ bool Bullet::update()
 {
     move(Dir::none, direction);
     if (direction == Dir::up)
-        for (auto& enemy: Game_manager::enemies)
-            if (enemy.gety() == y || enemy.gety() == (y-1))
-                if (enemy.inrange(x)) {
-                    enemy.hit(_bulletdamage);
-                    return true;
+        for (auto& enemy: Game_manager::enemies) {
+            if (enemy.inrange(x)) {
+                float distance = enemy.gety() - y;
+                // we hit or already passed the enemy
+                if (distance >= 0 && distance < speed) {
+                    enemy.hit(_bulletspeed);
+                    return 1;
                 }
+            }
+        }
     else
         if (Game_manager::player.gety() == y)
             if (Game_manager::player.inrange(x)) {

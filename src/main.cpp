@@ -108,7 +108,8 @@ void init()
     update_panels();
     doupdate();
 
-    Game_manager::player = Player{LINES/2, COLS/2};
+    Game_manager::player = Player{static_cast<float>(LINES)/2,
+     static_cast<float>(COLS)/2};
 
     for (int line=1; line<=3; ++line)
         for (int cols=5; cols<=(COLS-5); cols+=6)
