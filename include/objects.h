@@ -2,18 +2,21 @@
 #define OBJECTS_H
 
 #include "drawable.h"
-#include "bullet.h"
 
 
-constexpr float _enemyspeed = 0.5;
-constexpr int _playerspeed = 1;
+constexpr float _enemyspeed = 1;
+constexpr float _playerspeed = 1;
 constexpr int _player_maxhealth = 10;
 constexpr int _enemy_maxhealth = 1;
 
 
+
+class Bullet;
+
+
 class Interactable :public Drawable_obj {
 public:
-    Interactable(const int h, const int y, const int x, const float speed):
+    Interactable(const int h, const float y, const float x, const float speed):
     Drawable_obj(y, x, speed), health{h}
     {}
 
@@ -22,49 +25,54 @@ public:
         health -= damage;
     }
     int gethealth() { return health; }
-    /* check if x is in the range that our shape occupied */
-    bool inrange(int x) const =0;
+
+    /* check if x is in the range that our occupied shape */
+    virtual bool inrange(float x) const =0;
 
 protected:
     int health;
 };
 
-class Enemy :public Interactable {
-public:
-    Enemy(const int y, const int x) :Interactable(_enemy_maxhealth, y, x,
-    _enemyspeed) {}
-
-    Bullet shoot()
-    {
-        return Bullet(y+1, x, Dir::down);
-    }
-    void draw() const override
-    {
-        mvaddstr(y, x-2, ">||<");
-    }
-    bool inrange(int chkx) const override
-    {
-        return (chkx >= x-2) && (chkx <= x+1);
-    }
-};
 
 class Player : public Interactable {
 public:
-    Player(const int y, const int x) :Interactable(_player_maxhealth, y, x,
+    Player(const float y, const float x) :Interactable(_player_maxhealth, y, x,
     _playerspeed) {}
 
-    Bullet shoot()
+    Bullet shoot();
+    void draw(WINDOW* plac) const override
     {
-        return {y-1, x, Dir::up};
+        mvwaddstr(plac, y, x-1, R"(/_\)");
     }
-    void draw() const override
-    {
-        mvaddstr(y, x-1, "/_\\");
-    }
-    bool inrange(int chkx) const override
+    bool inrange(float chkx) const override
     {
         return (chkx >= x-1) && (chkx <= x+1);
     }
 };
+
+
+class Enemy :public Interactable {
+public:
+    Enemy(const float y, const float x) :Interactable(_enemy_maxhealth, y, x,
+    _enemyspeed) {}
+
+    Bullet shoot();
+    void draw(WINDOW* plac) const override
+    {
+        mvwaddstr(plac, y, x-2, R"(>||<)");
+    }
+    bool inrange(float chkx) const override
+    {
+        return ((x-2) <= chkx) && (chkx <= x+1);
+    }
+};
+
+
+
+// struct Window_prop {
+//     constexpr Window_prop(int y, int x, int l, int c) :y{y}, x{x}, lines{l},
+//     cols{c} {}
+//     int y, x, lines, cols;
+// };
 
 #endif // OBJECTS_H

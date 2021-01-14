@@ -1,14 +1,14 @@
+#ifndef DRAWABLE_H
+#define DRAWABLE_H
+
+
+
 #include <curses.h>
-#include <cmath>
 
 
-
-// diagonally movements degree
-const float _sin = std::sin(45);
-const float _cos = std::cos(45);
 
 enum class Dir {
-    up = 1, down = -1, // just in case Dir::up, Dir::down became tedious
+    up = -1, down = 1,  // lines decrease when we go up
     right = 1, left = -1,
     none
 };
@@ -16,33 +16,27 @@ enum class Dir {
 
 class Drawable_obj {
 public:
-    Drawable_obj(const int y, const int x, const int speed) :x{x}, y{y}, speed{speed}
+    Drawable_obj(const float y, const float x, const float speed) :x{x}, y{y}, speed{speed}
     {}
 
-    virtual void draw() const = 0;
+    virtual void draw(WINDOW*) const = 0;
 
-    virtual int getx() const { return x; }
-    virtual int gety() const { return y; }
-    virtual int getspeed() const { return speed; }
+    virtual float getx() const { return x; }
+    virtual float gety() const { return y; }
+    virtual float getspeed() const { return speed; }
 
-    virtual void setx(int newx) { x = newx; }
-    virtual void sety(int newy) { y = newy; }
+    virtual void setx(float newx) { x = newx; }
+    virtual void sety(float newy) { y = newy; }
 
     virtual void move(const Dir dirx, const Dir diry)
     {
-        if ((int)dirx == 0)
-            y += speed * (int)diry;
-        else if ((int)diry == 0)
-            x += speed * (int)dirx;
-        else {
-            x += _cos * (speed * (int)dirx);
-            y += _sin * (speed * (int)diry);
-        }
-
-        /* curses accept integer so this might discard any changes we've made */
-        x = std::round(x);
-        y = std::round(y);
+        if (dirx == Dir::none)
+            y += speed * static_cast<int>(diry);
+        else if (diry == Dir::none)
+            x += speed * static_cast<int>(dirx);
     }
 protected:
-    int x,y,speed;
+    float x,y,speed;
 };
+
+#endif // DRAWABLE_H
