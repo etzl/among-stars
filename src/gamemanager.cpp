@@ -100,16 +100,22 @@ void Game_manager::move_enemies()
 void Game_manager::update()
 {
     // update bullets position
-    std::remove_if(bullets.begin(), bullets.end(), [](Bullet& b){ return b.update(); });
+    for (auto p = bullets.begin(); p != bullets.end();) {
+        if (p->update())
+            bullets.erase(p);
+        else
+            ++p;
+    }
 
-    // check if anyone is dead
-    std::remove_if(enemies.begin(), enemies.end(), [](Enemy& e){
-        if (e.gethealth() <= 0) {
+    // remove deads
+    for (auto p = enemies.begin(); p != enemies.end();) {
+        if (p->gethealth() <= 0) {
             player_points += _Points_perenemy;
-            return true;
+            enemies.erase(p);
         }
-        return false;
-    });
+        else
+            ++p;
+    }
     if (player.gethealth() <= 0) {
         // GAME OVER! implementation...
     }

@@ -4,10 +4,10 @@
 
 Bullet Player::shoot()
 {
-    return {y-1, x, Dir::up};
+    return {y, x, Dir::up};
 }
 
 Bullet Enemy::shoot()
 {
-    return Bullet(y+1, x, Dir::down);
+    return Bullet(y, x, Dir::down);
 }

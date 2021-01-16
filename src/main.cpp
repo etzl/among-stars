@@ -1,3 +1,8 @@
+#define _DEBUG
+// #define O_MENU
+
+
+
 #include <curses.h>
 #include <panel.h>
 #include <menu.h>
@@ -26,7 +31,7 @@ MENU* mainmenu;
 std::vector<ITEM*> m_items;
 
 
-void init();
+void init(bool);
 void input();
 void update();
 void draw();
@@ -36,9 +41,21 @@ void showmenu();
 void print_per_line(WINDOW*, const char*);
 
 
-int main()
+void checkargs(int count, char* argv[], bool& rwm)
 {
-    init();
+    for (int i=0; i!=count; ++i) {
+        if (strcmp(argv[i], "--no-menu"))
+            rwm = true;
+    }
+}
+
+int main(int argc, char* argv[])
+{
+    bool runwithoutmenu = false;
+    if (0 < argc)
+        checkargs(argc, argv, runwithoutmenu);
+
+    init(runwithoutmenu);
 
     while (true) {
         input();
@@ -47,7 +64,7 @@ int main()
     }
 }
 
-void init()
+void init(bool rwm)
 {
     // curses initializations
     initscr();
@@ -99,7 +116,10 @@ void init()
     menu_opts_off(mainmenu, O_SHOWDESC);
     set_menu_mark(mainmenu, "> ");
 
-    showmenu();
+#ifdef O_MENU
+    if (!rwm)
+        showmenu();
+#endif
 
     stdpnl = new_panel(stdscr);
     pointspnl = new_panel(pointswin);

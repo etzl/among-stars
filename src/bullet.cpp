@@ -10,17 +10,29 @@ constexpr int _bulletdamage = 1;
 bool Bullet::update()
 {
     move(Dir::none, direction);
-    if (direction == Dir::up)
-        for (auto& enemy: Game_manager::enemies) {
-            if (enemy.inrange(x)) {
-                float distance = enemy.gety() - y;
+    if (direction == Dir::up) {
+        // biggest distance means the enemy we passed first (to attack)
+        float lastbigdistance = 0;
+        int index;
+        bool hit = false;
+
+        for (int i=0; i<Game_manager::enemies.size(); ++i)
+            if (Game_manager::enemies[i].inrange(x)) {
+                float distance = Game_manager::enemies[i].gety() - y;
                 // we hit or already passed the enemy
-                if (distance >= 0 && distance < speed) {
-                    enemy.hit(_bulletspeed);
-                    return 1;
+                // implicitely check for distance >= 0
+                if (lastbigdistance <= distance) {
+                    lastbigdistance = distance;
+                    index = i;
+                    hit = true;
                 }
             }
+
+        if (hit) {
+            Game_manager::enemies[index].hit(_bulletdamage);
+            return 1;
         }
+    }
     else
         if (Game_manager::player.gety() == y)
             if (Game_manager::player.inrange(x)) {
