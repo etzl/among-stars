@@ -130,10 +130,6 @@ void init(bool rwm)
 
     Game_manager::player = Player{static_cast<float>(LINES)/2,
      static_cast<float>(COLS)/2};
-
-    for (int line=1; line<=3; ++line)
-        for (int cols=5; cols<=(COLS-5); cols+=6)
-            Game_manager::enemies.emplace_back(line, cols);
 }
 void finish()
 {
@@ -237,8 +233,8 @@ void showmessage(const char* msg)
 
 void update()
 {
-    // Game_manager::generate_enemies();
-    // Game_manager::move_enemies();
+    Game_manager::generate_enemies();
+    Game_manager::move_enemies();
     Game_manager::update();
 }
 

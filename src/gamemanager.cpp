@@ -30,7 +30,7 @@ private:
 Player Game_manager::player = Player{0, 0}; // can't be initialized before init()
 std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
-int Game_manager::player_points;
+int Game_manager::player_points = 0;
 
 
 

@@ -34,11 +34,13 @@ bool Bullet::update()
         }
     }
     else
-        if (Game_manager::player.gety() == y)
-            if (Game_manager::player.inrange(x)) {
+        if (Game_manager::player.inrange(x)) {
+            float distance = y - Game_manager::player.gety();
+            if (0 < distance) {
                 Game_manager::player.hit(_bulletdamage);
-                return true;
+                return 1;
             }
+        }
 
     if (y <= 0 || y >= LINES)
         return true;

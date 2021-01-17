@@ -4,7 +4,7 @@
 #include "drawable.h"
 
 
-constexpr float _enemyspeed = 1;
+constexpr float _enemyspeed = 0.5F;
 constexpr float _playerspeed = 1;
 constexpr int _player_maxhealth = 10;
 constexpr int _enemy_maxhealth = 1;
