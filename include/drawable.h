@@ -35,6 +35,15 @@ public:
         else if (diry == Dir::none)
             x += speed * static_cast<int>(dirx);
     }
+
+    bool operator==(const Drawable_obj& obj)
+    {
+        return (obj.x == x) && (obj.y == y);
+    }
+    bool operator!=(const Drawable_obj& obj)
+    {
+        return !(*this == obj);
+    }
 protected:
     float x,y,speed;
 };

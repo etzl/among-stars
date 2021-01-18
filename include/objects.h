@@ -4,7 +4,7 @@
 #include "drawable.h"
 
 
-constexpr float _enemyspeed = 0.5F;
+constexpr float _enemyspeed = 0.15F;
 constexpr float _playerspeed = 1;
 constexpr int _player_maxhealth = 10;
 constexpr int _enemy_maxhealth = 1;
@@ -25,6 +25,15 @@ public:
         health -= damage;
     }
     int gethealth() { return health; }
+
+    bool operator==(const Interactable& cmp)
+    {
+        return (cmp.health == health) && (Drawable_obj::operator==(cmp));
+    }
+    bool operator!=(const Interactable& cmp)
+    {
+        return !(*this == cmp);
+    }
 
     /* check if x is in the range that our occupied shape */
     virtual bool inrange(float x) const =0;

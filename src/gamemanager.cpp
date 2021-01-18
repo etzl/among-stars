@@ -26,11 +26,11 @@ private:
 
 
 
-
-Player Game_manager::player = Player{0, 0}; // can't be initialized before init()
-std::vector<Enemy> Game_manager::enemies;
-std::vector<Bullet> Game_manager::bullets;
-int Game_manager::player_points = 0;
+constexpr int _max_enemy_per_row = 3;
+constexpr int _min_enemy_per_row = 0;
+// A magic number so generation of enemies won't happen very often
+constexpr int _Magic_enemy = 5;
+constexpr int _Points_perenemy = 1;
 
 
 
@@ -86,6 +86,9 @@ void Game_manager::move_enemies()
     }
 
     for (int i=0; i!=enemies.size(); ++i) {
+        if (enemies[i].gety() >= LINES) {
+            enemies.erase(find(enemies.begin(), enemies.end(), enemies[i]));
+        }
         if (!alignenemy && i == index) {
             if (realdistance < 0)
                 enemies[index].move(Dir::right, Dir::down);
@@ -120,3 +123,8 @@ void Game_manager::update()
         // GAME OVER! implementation...
     }
 }
+
+Player Game_manager::player = Player{0, 0}; // can't be initialized before init()
+std::vector<Enemy> Game_manager::enemies;
+std::vector<Bullet> Game_manager::bullets;
+int Game_manager::player_points = 0;
