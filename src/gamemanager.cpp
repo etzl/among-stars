@@ -26,11 +26,16 @@ private:
 
 
 
-constexpr int _max_enemy_per_row = 3;
-constexpr int _min_enemy_per_row = 0;
-// A magic number so generation of enemies won't happen very often
-constexpr int _Magic_enemy = 5;
+constexpr int _max_enemy_per_row = 4;
+constexpr int _min_enemy_per_row = 1;
+constexpr int _Magic_enemy = 3; /* A magic number so generation of enemies won't happen very often */
 constexpr int _Points_perenemy = 1;
+
+constexpr float _Allowed_distance_from_end = 8;
+constexpr float _High_power_speed_increase = 0.2F;
+constexpr float _High_distance_from_begin = 3;
+
+constexpr float _Relative_corner = 4;   /* The distance from right or left of the screen */
 
 
 
@@ -41,7 +46,7 @@ void Game_manager::generate_enemies()
     constexpr int y = 0;
 
 
-    if (enemies.size() % _Magic_enemy != 0)
+    if (enemies.size() / _Magic_enemy != 0)
         return;
 
 
@@ -59,44 +64,71 @@ void Game_manager::generate_enemies()
         }
 
         enemies.emplace_back(y, x);
+
+        // Constructing enemy at y=0 automatically makes it high-mode
+        Enemy& lastone = enemies.back();
+        lastone.mode() = Enemy_states::high;
+        lastone.setspeed(lastone.getspeed()+_High_power_speed_increase);
     }
 }
 
 void Game_manager::move_enemies()
 {
-    int index, realdistance;
-    const int playerx = player.getx();
-    bool alignenemy = true;
-
-    if (std::none_of(enemies.begin(), enemies.end(), [&](Enemy& en) {
-        return en.getx() == playerx;
-    })) {
-        alignenemy = false;
-        int lowest_dist = COLS;
+    const static float max_y = LINES - _Allowed_distance_from_end;
+    const static float relative_right = COLS-_Relative_corner;
+    static Rand chose {static_cast<int>(Enemy_states::left),
+     static_cast<int>(Enemy_states::right)};
 
 
-        for (int i=0; i!=enemies.size(); ++i) {
-            const int curdistance = std::abs(enemies[i].getx() - playerx);
-            if (curdistance < lowest_dist) {
-                lowest_dist = curdistance;
-                realdistance = enemies[i].getx() - playerx;
-                index = i;
-            }
+    for (auto& enemy: enemies) {
+        switch (enemy.mode()) {
+            case Enemy_states::high:
+                enemy.move(Dir::down);
+
+                if (enemy.gety() >= max_y) {
+                    enemy.setspeed(enemy.getspeed()-_High_power_speed_increase);
+
+                    if (relative_right <= enemy.getx()) // enemy is right
+                        enemy.mode() = Enemy_states::left;
+                    else if (enemy.getx() <= _Relative_corner)
+                        enemy.mode() = Enemy_states::right;
+                    else
+                        enemy.mode() = Enemy_states{chose()};
+                }
+                break;
+            case Enemy_states::right:
+                if (enemy.lastmove() == Dir::up) {
+                    enemy.move(Dir::right);
+
+                    if (relative_right <= enemy.getx())
+                        enemy.mode() = Enemy_states::left;
+                }
+                else {
+                    enemy.move(Dir::up);
+
+                    if (enemy.gety() < _High_distance_from_begin) {
+                        enemy.mode() = Enemy_states::high;
+                        enemy.setspeed(enemy.getspeed()+_High_power_speed_increase);
+                    }
+                }
+                break;
+            case Enemy_states::left:
+                if (enemy.lastmove() == Dir::up) {
+                    enemy.move(Dir::left);
+
+                    if (enemy.getx() <= _Relative_corner)
+                        enemy.mode() = Enemy_states::right;
+                }
+                else {
+                    enemy.move(Dir::up);
+
+                    if (enemy.gety() < _High_distance_from_begin) {
+                        enemy.mode() = Enemy_states::high;
+                        enemy.setspeed(enemy.getspeed()+_High_power_speed_increase);
+                    }
+                }
+                break;
         }
-    }
-
-    for (int i=0; i!=enemies.size(); ++i) {
-        if (enemies[i].gety() >= LINES) {
-            enemies.erase(find(enemies.begin(), enemies.end(), enemies[i]));
-        }
-        if (!alignenemy && i == index) {
-            if (realdistance < 0)
-                enemies[index].move(Dir::right, Dir::down);
-            else // 0 < realdistance
-                enemies[index].move(Dir::left, Dir::down);
-            continue;
-        }
-        enemies[i].move(Dir::none, Dir::down);
     }
 }
 

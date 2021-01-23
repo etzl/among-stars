@@ -4,7 +4,7 @@
 #include "drawable.h"
 
 
-constexpr float _enemyspeed = 0.15F;
+constexpr float _enemyspeed = 0.5F;
 constexpr float _playerspeed = 1;
 constexpr int _player_maxhealth = 10;
 constexpr int _enemy_maxhealth = 1;
@@ -60,6 +60,9 @@ public:
 };
 
 
+enum class Enemy_states {
+    high, left, right
+};
 class Enemy :public Interactable {
 public:
     Enemy(const float y, const float x) :Interactable(_enemy_maxhealth, y, x,
@@ -74,6 +77,10 @@ public:
     {
         return ((x-2) <= chkx) && (chkx <= x+1);
     }
+    Enemy_states& mode() { return state; }
+
+private:
+    Enemy_states state;
 };
 
 

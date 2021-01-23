@@ -155,25 +155,23 @@ void input()
     int c = getch();
     if (c == ERR)
         return;
-    Dir yplayerdir = Dir::none;
-    Dir xplyaerdir = Dir::none;
 
     switch (c) {
         case 'w':
         case KEY_UP:
-            yplayerdir = Dir::up;
+            Game_manager::player.move(Dir::up);
             break;
         case 's':
         case KEY_DOWN:
-            yplayerdir = Dir::down;
+            Game_manager::player.move(Dir::down);
             break;
         case 'a':
         case KEY_LEFT:
-            xplyaerdir = Dir::left;
+            Game_manager::player.move(Dir::left);
             break;
         case 'd':
         case KEY_RIGHT:
-            xplyaerdir = Dir::right;
+            Game_manager::player.move(Dir::right);
             break;
         case ' ':
         case '\n':
@@ -188,7 +186,6 @@ void input()
             showmessage("Wrong input!");
             break;
     }
-    Game_manager::player.move(xplyaerdir, yplayerdir);
 }
 
 void draw()

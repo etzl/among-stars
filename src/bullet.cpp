@@ -9,7 +9,7 @@ constexpr int _bulletdamage = 1;
 /* returning true deletes the bullet from game manager list */
 bool Bullet::update()
 {
-    move(Dir::none, direction);
+    move(direction);
     if (direction == Dir::up) {
         // biggest distance means the enemy we passed first (to attack)
         float lastbigdistance = 0;

@@ -7,11 +7,7 @@
 
 
 
-enum class Dir {
-    up = -1, down = 1,  // lines decrease when we go up
-    right = 1, left = -1,
-    none
-};
+enum class Dir { none, up, down, right, left };
 
 
 class Drawable_obj {
@@ -24,16 +20,30 @@ public:
     virtual float getx() const { return x; }
     virtual float gety() const { return y; }
     virtual float getspeed() const { return speed; }
+    virtual Dir lastmove() const { return moved; }
 
     virtual void setx(float newx) { x = newx; }
     virtual void sety(float newy) { y = newy; }
+    virtual void setspeed(float news) { speed = news; }
 
-    virtual void move(const Dir dirx, const Dir diry)
+    virtual void move(const Dir dir)
     {
-        if (dirx == Dir::none)
-            y += speed * static_cast<int>(diry);
-        else if (diry == Dir::none)
-            x += speed * static_cast<int>(dirx);
+        moved = dir;
+
+        switch (dir) {
+            case Dir::up:
+                y -= speed; // LINES decreases as we go up
+                break;
+            case Dir::down:
+                y += speed;
+                break;
+            case Dir::right:
+                x += speed;
+                break;
+            case Dir::left:
+                x -= speed;
+                break;
+        }
     }
 
     bool operator==(const Drawable_obj& obj)
@@ -46,6 +56,7 @@ public:
     }
 protected:
     float x,y,speed;
+    Dir moved;
 };
 
 #endif // DRAWABLE_H
