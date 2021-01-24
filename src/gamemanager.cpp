@@ -72,13 +72,18 @@ void Game_manager::generate_enemies()
     }
 }
 
-bool c_highmode(Enemy& chk)
+void c_highmode(Enemy& chk)
 {
-    return chk.gety() < _High_distance_from_begin &&
+    bool allow_high = chk.gety() < _High_distance_from_begin &&
         std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
         [](auto& enemy){
             return enemy.mode() == Enemy_states::high;
         })==Game_manager::enemies.end();
+
+    if (allow_high) {
+        chk.mode() = Enemy_states::high;
+        chk.setspeed(chk.getspeed()+_High_power_speed_increase);
+    }
 }
 void Game_manager::move_enemies()
 {
@@ -113,11 +118,7 @@ void Game_manager::move_enemies()
                 }
                 else {
                     enemy.move(Dir::up);
-
-                    if (c_highmode(enemy)) {
-                        enemy.mode() = Enemy_states::high;
-                        enemy.setspeed(enemy.getspeed()+_High_power_speed_increase);
-                    }
+                    c_highmode(enemy);
                 }
                 break;
             case Enemy_states::left:
@@ -129,11 +130,7 @@ void Game_manager::move_enemies()
                 }
                 else {
                     enemy.move(Dir::up);
-
-                    if (c_highmode(enemy)) {
-                        enemy.mode() = Enemy_states::high;
-                        enemy.setspeed(enemy.getspeed()+_High_power_speed_increase);
-                    }
+                    c_highmode(enemy);
                 }
                 break;
         }
