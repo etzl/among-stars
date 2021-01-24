@@ -28,7 +28,7 @@ private:
 
 constexpr int _max_enemy_per_row = 4;
 constexpr int _min_enemy_per_row = 1;
-constexpr int _Magic_enemy = 3; /* A magic number so generation of enemies won't happen very often */
+constexpr int _Magic_enemy = 4; /* A magic number so generation of enemies won't happen very often */
 constexpr int _Points_perenemy = 1;
 
 constexpr float _Allowed_distance_from_end = 8;
