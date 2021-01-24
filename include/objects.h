@@ -4,7 +4,7 @@
 #include "drawable.h"
 
 
-constexpr float _enemyspeed = 0.5F;
+constexpr float _enemyspeed = 0.38F;
 constexpr float _playerspeed = 1;
 constexpr int _player_maxhealth = 10;
 constexpr int _enemy_maxhealth = 1;
@@ -71,7 +71,7 @@ public:
     Bullet shoot();
     void draw(WINDOW* plac) const override
     {
-        mvwaddstr(plac, y, x-2, R"(>||<)");
+        mvwaddstr(plac, y, x-2, R"(>\|/<)");
     }
     bool inrange(float chkx) const override
     {
