@@ -72,6 +72,14 @@ void Game_manager::generate_enemies()
     }
 }
 
+bool c_highmode(Enemy& chk)
+{
+    return chk.gety() < _High_distance_from_begin &&
+        std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
+        [](auto& enemy){
+            return enemy.mode() == Enemy_states::high;
+        })==Game_manager::enemies.end();
+}
 void Game_manager::move_enemies()
 {
     const static float max_y = LINES - _Allowed_distance_from_end;
@@ -106,7 +114,7 @@ void Game_manager::move_enemies()
                 else {
                     enemy.move(Dir::up);
 
-                    if (enemy.gety() < _High_distance_from_begin) {
+                    if (c_highmode(enemy)) {
                         enemy.mode() = Enemy_states::high;
                         enemy.setspeed(enemy.getspeed()+_High_power_speed_increase);
                     }
@@ -122,7 +130,7 @@ void Game_manager::move_enemies()
                 else {
                     enemy.move(Dir::up);
 
-                    if (enemy.gety() < _High_distance_from_begin) {
+                    if (c_highmode(enemy)) {
                         enemy.mode() = Enemy_states::high;
                         enemy.setspeed(enemy.getspeed()+_High_power_speed_increase);
                     }

@@ -71,7 +71,7 @@ public:
     Bullet shoot();
     void draw(WINDOW* plac) const override
     {
-        mvwaddstr(plac, y, x-2, R"(>\|/<)");
+        mvwaddstr(plac, y, x-2, R"(>\/<)");
     }
     bool inrange(float chkx) const override
     {
