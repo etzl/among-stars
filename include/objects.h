@@ -61,7 +61,7 @@ public:
 
 
 enum class Enemy_states {
-    high, left, right
+    high, up_left, up_right, down_left, down_right
 };
 class Enemy :public Interactable {
 public:

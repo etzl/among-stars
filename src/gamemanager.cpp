@@ -38,6 +38,24 @@ constexpr float _High_distance_from_begin = 3;
 constexpr float _Relative_corner = 4;   /* The distance from right or left of the screen */
 
 
+void c_highmode(Enemy& chk)
+{
+    bool allow_high = chk.gety() < _High_distance_from_begin &&
+        std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
+        [](auto& enemy){
+            return enemy.mode() == Enemy_states::high;
+        })==Game_manager::enemies.end();
+
+    if (allow_high) {
+        chk.mode() = Enemy_states::high;
+        chk.setspeed(chk.getspeed()+_High_power_speed_increase);
+    }
+    else if (chk.gety() <= 0) {
+        static Rand choose_down {static_cast<int>(Enemy_states::down_left),
+            static_cast<int>(Enemy_states::down_right)};
+        chk.mode() = Enemy_states{choose_down()};
+    }
+}
 
 void Game_manager::generate_enemies()
 {
@@ -64,33 +82,17 @@ void Game_manager::generate_enemies()
         }
 
         enemies.emplace_back(y, x);
-
-        // Constructing enemy at y=0 automatically makes it high-mode
-        Enemy& lastone = enemies.back();
-        lastone.mode() = Enemy_states::high;
-        lastone.setspeed(lastone.getspeed()+_High_power_speed_increase);
+        c_highmode(enemies.back());
     }
 }
 
-void c_highmode(Enemy& chk)
-{
-    bool allow_high = chk.gety() < _High_distance_from_begin &&
-        std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
-        [](auto& enemy){
-            return enemy.mode() == Enemy_states::high;
-        })==Game_manager::enemies.end();
-
-    if (allow_high) {
-        chk.mode() = Enemy_states::high;
-        chk.setspeed(chk.getspeed()+_High_power_speed_increase);
-    }
-}
 void Game_manager::move_enemies()
 {
     const static float max_y = LINES - _Allowed_distance_from_end;
     const static float relative_right = COLS-_Relative_corner;
-    static Rand chose {static_cast<int>(Enemy_states::left),
-     static_cast<int>(Enemy_states::right)};
+
+    static Rand choose_up {static_cast<int>(Enemy_states::up_left),
+        static_cast<int>(Enemy_states::up_right)};
 
 
     for (auto& enemy: enemies) {
@@ -100,37 +102,58 @@ void Game_manager::move_enemies()
 
                 if (enemy.gety() >= max_y) {
                     enemy.setspeed(enemy.getspeed()-_High_power_speed_increase);
-
-                    if (relative_right <= enemy.getx()) // enemy is right
-                        enemy.mode() = Enemy_states::left;
-                    else if (enemy.getx() <= _Relative_corner)
-                        enemy.mode() = Enemy_states::right;
-                    else
-                        enemy.mode() = Enemy_states{chose()};
+                    enemy.mode() = Enemy_states{choose_up()};
                 }
                 break;
-            case Enemy_states::right:
+            case Enemy_states::up_right:
                 if (enemy.lastmove() == Dir::up) {
                     enemy.move(Dir::right);
 
                     if (relative_right <= enemy.getx())
-                        enemy.mode() = Enemy_states::left;
+                        enemy.mode() = Enemy_states::up_left;
                 }
                 else {
                     enemy.move(Dir::up);
                     c_highmode(enemy);
                 }
                 break;
-            case Enemy_states::left:
+            case Enemy_states::up_left:
                 if (enemy.lastmove() == Dir::up) {
                     enemy.move(Dir::left);
 
                     if (enemy.getx() <= _Relative_corner)
-                        enemy.mode() = Enemy_states::right;
+                        enemy.mode() = Enemy_states::up_right;
                 }
                 else {
                     enemy.move(Dir::up);
                     c_highmode(enemy);
+                }
+                break;
+            case Enemy_states::down_right:
+                if (enemy.lastmove() == Dir::down) {
+                    enemy.move(Dir::right);
+                    if (relative_right <= enemy.getx())
+                        enemy.mode() = Enemy_states::down_left;
+                }
+                else {
+                    enemy.move(Dir::down);
+
+                    if (enemy.gety() >= max_y)
+                        enemy.mode() = Enemy_states{choose_up()};
+                }
+                break;
+            case Enemy_states::down_left:
+                if (enemy.lastmove() == Dir::down) {
+                    enemy.move(Dir::left);
+
+                    if (enemy.getx() <= _Relative_corner)
+                        enemy.mode() = Enemy_states::down_right;
+                }
+                else {
+                    enemy.move(Dir::down);
+
+                    if (enemy.gety() >= max_y)
+                        enemy.mode() = Enemy_states{choose_up()};
                 }
                 break;
         }
