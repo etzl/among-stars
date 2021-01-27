@@ -6,13 +6,15 @@
 #include <curses.h>
 
 
+constexpr float _timeoutms = 50;
 
 enum class Dir { none, up, down, right, left };
 
 
 class Drawable_obj {
 public:
-    Drawable_obj(const float y, const float x, const float speed) :x{x}, y{y}, speed{speed}
+    Drawable_obj(const float y, const float x, const float speed) :x{x}, y{y},
+     speed{speed*(_timeoutms/1000)}
     {}
 
     virtual void draw(WINDOW*) const = 0;

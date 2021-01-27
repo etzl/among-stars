@@ -20,7 +20,6 @@
 
 
 
-constexpr int _timeout = 50;
 constexpr std::chrono::seconds _Showmessage_timer(1);
 
 
@@ -72,7 +71,7 @@ void init(bool rwm)
     nl();
     noecho();
     curs_set(0);
-    timeout(_timeout);
+    timeout(_timeoutms);
     keypad(stdscr, TRUE);
 
     init_pair(1, COLOR_GREEN, 0);
