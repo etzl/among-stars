@@ -18,6 +18,7 @@ public:
     {}
 
     virtual void draw(WINDOW*) const = 0;
+    virtual size_t size() const =0; /* Amount of columns occupied by the shape */
 
     virtual float getx() const { return x; }
     virtual float gety() const { return y; }

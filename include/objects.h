@@ -53,6 +53,7 @@ public:
     {
         mvwaddstr(plac, y, x-1, R"(/_\)");
     }
+    size_t size() const override { return 3; }
     bool inrange(float chkx) const override
     {
         return (chkx >= x-1) && (chkx <= x+1);
@@ -61,7 +62,7 @@ public:
 
 
 enum class Enemy_states {
-    high, up_left, up_right, down_left, down_right
+    idle, high, up_left, up_right, down_left, down_right
 };
 class Enemy :public Interactable {
 public:
@@ -71,8 +72,9 @@ public:
     Bullet shoot();
     void draw(WINDOW* plac) const override
     {
-        mvwaddstr(plac, y, x-2, R"(>\/<)");
+        mvwaddstr(plac, y, x-2, R"(>||<)");
     }
+    size_t size() const override { return 4; }
     bool inrange(float chkx) const override
     {
         return ((x-2) <= chkx) && (chkx <= x+1);
@@ -80,7 +82,7 @@ public:
     Enemy_states& mode() { return state; }
 
 private:
-    Enemy_states state;
+    Enemy_states state = Enemy_states::idle;
 };
 
 

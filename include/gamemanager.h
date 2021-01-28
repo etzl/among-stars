@@ -10,7 +10,7 @@
 
 constexpr int _max_enemy_per_row = 4;
 constexpr int _min_enemy_per_row = 1;
-constexpr int _Magic_enemy = 4; /* A magic number so generation of enemies won't happen very often */
+constexpr int _Enemy_maximum_generate = 4; /* If enemies are less than this number we are allowed to regenerate more */
 constexpr int _Points_perenemy = 1;
 
 constexpr float _Allowed_distance_from_end = 8;
@@ -36,10 +36,8 @@ public:
 
     static void generate_enemies();
     static void move_enemies();
-    /* Update frame */
-    static void update();
-    /* Enemies shoot logic */
-    static void shoot();
+    static void update(); /* Update frame */
+    static void shoot(); /* Enemy shoot logic */
 };
 
 
