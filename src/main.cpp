@@ -13,6 +13,7 @@
 #include <chrono>
 #include <cstring>
 #include <regex>
+#include <chrono>
 
 #include "objects.h"
 #include "gamemanager.h"
@@ -55,9 +56,15 @@ int main(int argc, char* argv[])
     init(runwithoutmenu);
 
     while (true) {
+        auto tp1 = std::chrono::steady_clock::now();
+
         input();
         update();
         draw();
+
+        auto tp2 = std::chrono::steady_clock::now();
+        Game_manager::deltatime = std::chrono::duration_cast<
+            std::chrono::milliseconds>(tp2-tp1).count();
     }
 }
 

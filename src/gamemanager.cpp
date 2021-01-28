@@ -4,6 +4,7 @@
 
 #include <algorithm>
 #include <random>
+#include <chrono>
 
 
 class Rand {
@@ -151,10 +152,13 @@ void Game_manager::move_enemies()
 
 void Game_manager::shoot()
 {
+    using namespace std::chrono;
+
     static float counter = 0;
 
-    counter += _timeout;
-    if (counter >= _Shoot_interval) {
+    counter += deltatime;
+
+    if (counter >= _Shoot_interval.count()) {
         for (auto& enemy: enemies)
             Game_manager::bullets.push_back(enemy.shoot());
         counter = 0;
@@ -189,3 +193,4 @@ Player Game_manager::player = Player{0, 0}; // can't correctly initialize until 
 std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
 int Game_manager::player_points = 0;
+int64_t Game_manager::deltatime = 0;

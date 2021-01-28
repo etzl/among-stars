@@ -19,9 +19,8 @@ constexpr float _High_distance_from_begin = 3;
 
 constexpr float _Relative_corner = 4;   /* The distance from right or left of the screen */
 
-constexpr int _timeout = 50;
 constexpr std::chrono::seconds _Showmessage_timer(1);
-constexpr float _Shoot_interval = 3000; // milliseconds
+constexpr std::chrono::milliseconds _Shoot_interval(std::chrono::seconds(3));
 
 
 
@@ -32,6 +31,7 @@ public:
     static std::vector<Enemy> enemies;
     static std::vector<Bullet> bullets;
     static Player player;
+    static int64_t deltatime;
 
 
     static void generate_enemies();
