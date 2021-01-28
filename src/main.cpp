@@ -20,8 +20,6 @@
 
 
 
-constexpr std::chrono::seconds _Showmessage_timer(1);
-
 
 
 PANEL *stdpnl, *pointspnl, *msgpnl;
@@ -231,6 +229,7 @@ void update()
 {
     Game_manager::generate_enemies();
     Game_manager::move_enemies();
+    Game_manager::shoot();
     Game_manager::update();
 }
 

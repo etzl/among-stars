@@ -26,17 +26,6 @@ private:
 
 
 
-constexpr int _max_enemy_per_row = 4;
-constexpr int _min_enemy_per_row = 1;
-constexpr int _Magic_enemy = 4; /* A magic number so generation of enemies won't happen very often */
-constexpr int _Points_perenemy = 1;
-
-constexpr float _Allowed_distance_from_end = 8;
-constexpr float _High_power_speed_increase = 0.2F;
-constexpr float _High_distance_from_begin = 3;
-
-constexpr float _Relative_corner = 4;   /* The distance from right or left of the screen */
-
 
 void c_highmode(Enemy& chk)
 {
@@ -160,6 +149,18 @@ void Game_manager::move_enemies()
     }
 }
 
+void Game_manager::shoot()
+{
+    static float counter = 0;
+
+    counter += _timeout;
+    if (counter >= _Shoot_interval) {
+        for (auto& enemy: enemies)
+            Game_manager::bullets.push_back(enemy.shoot());
+        counter = 0;
+    }
+}
+
 void Game_manager::update()
 {
     // update bullets position
@@ -184,7 +185,7 @@ void Game_manager::update()
     }
 }
 
-Player Game_manager::player = Player{0, 0}; // can't be initialized before init()
+Player Game_manager::player = Player{0, 0}; // can't correctly initialize until main.cpp:init()
 std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
 int Game_manager::player_points = 0;
