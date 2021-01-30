@@ -50,7 +50,7 @@ void c_highmode(Enemy& chk)
 void Game_manager::generate_enemies()
 {
     static Rand count_rand {_min_enemy_per_row, _max_enemy_per_row};
-    static Rand x_rand{2, COLS-3}; // need these spaces to be occupied by the shape
+    static Rand x_rand{2, COLS-3}; // these spaces will be occupied by the shape
     constexpr int y = 0;
 
 
@@ -157,7 +157,6 @@ void Game_manager::shoot()
     static float counter = 0;
 
     counter += deltatime;
-
     if (counter >= _Shoot_interval.count()) {
         for (auto& enemy: enemies)
             Game_manager::bullets.push_back(enemy.shoot());
@@ -193,4 +192,4 @@ Player Game_manager::player = Player{0, 0}; // can't correctly initialize until 
 std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
 int Game_manager::player_points = 0;
-int64_t Game_manager::deltatime = 0;
+float Game_manager::deltatime = std::chrono::duration<float>(_timeoutms).count(); // makes sense (better than 0) for the first frame

@@ -6,15 +6,13 @@
 #include <curses.h>
 
 
-constexpr float _timeoutms = 50;
-
 enum class Dir { none, up, down, right, left };
 
 
 class Drawable_obj {
 public:
     Drawable_obj(const float y, const float x, const float speed) :x{x}, y{y},
-     speed{speed*(_timeoutms/1000)}
+     speed{speed}
     {}
 
     virtual void draw(WINDOW*) const = 0;
@@ -29,25 +27,7 @@ public:
     virtual void sety(float newy) { y = newy; }
     virtual void setspeed(float news) { speed = news; }
 
-    virtual void move(const Dir dir)
-    {
-        moved = dir;
-
-        switch (dir) {
-            case Dir::up:
-                y -= speed; // LINES decreases as we go up
-                break;
-            case Dir::down:
-                y += speed;
-                break;
-            case Dir::right:
-                x += speed;
-                break;
-            case Dir::left:
-                x -= speed;
-                break;
-        }
-    }
+    virtual void move(const Dir dir);
 
     bool operator==(const Drawable_obj& obj)
     {

@@ -5,7 +5,7 @@
 #include "drawable.h"
 
 
-constexpr float _bulletspeed = 20;
+constexpr float _bulletspeed = 21;
 
 
 

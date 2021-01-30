@@ -14,13 +14,14 @@ constexpr int _Enemy_maximum_generate = 4; /* If enemies are less than this numb
 constexpr int _Points_perenemy = 1;
 
 constexpr float _Allowed_distance_from_end = 8;
-constexpr float _High_power_speed_increase = 0.3F;
+constexpr float _High_power_speed_increase = 4;
 constexpr float _High_distance_from_begin = 3;
 
 constexpr float _Relative_corner = 4;   /* The distance from right or left of the screen */
 
 constexpr std::chrono::seconds _Showmessage_timer(1);
-constexpr std::chrono::milliseconds _Shoot_interval(std::chrono::seconds(3));
+constexpr std::chrono::seconds _Shoot_interval(3);
+constexpr std::chrono::milliseconds _timeoutms(50);
 
 
 
@@ -31,7 +32,7 @@ public:
     static std::vector<Enemy> enemies;
     static std::vector<Bullet> bullets;
     static Player player;
-    static int64_t deltatime;
+    static float deltatime;
 
 
     static void generate_enemies();

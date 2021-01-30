@@ -63,8 +63,7 @@ int main(int argc, char* argv[])
         draw();
 
         auto tp2 = std::chrono::steady_clock::now();
-        Game_manager::deltatime = std::chrono::duration_cast<
-            std::chrono::milliseconds>(tp2-tp1).count();
+        Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
     }
 }
 
@@ -76,7 +75,7 @@ void init(bool rwm)
     nl();
     noecho();
     curs_set(0);
-    timeout(_timeoutms);
+    timeout(_timeoutms.count());
     keypad(stdscr, TRUE);
 
     init_pair(1, COLOR_GREEN, 0);
