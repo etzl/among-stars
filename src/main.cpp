@@ -96,8 +96,6 @@ void init(bool rwm)
     int m_descols = 30;
     descwin = derwin(menuwin, m_dernlines, m_descols, 1, m_ncols-m_descols-1);
 
-    wattron(msgwin, COLOR_PAIR(2));
-
     // items
     m_items.reserve(5);
     m_items.push_back(new_item("Resume", "Continue where you left"));
@@ -338,7 +336,7 @@ void print_per_line(WINDOW* place, const char* msg)
             }
         }
     }
-    else wprintw(descwin, "%s", desc.data());
+    else wprintw(place, "%s", desc.data());
 
     wrefresh(place);
 }
