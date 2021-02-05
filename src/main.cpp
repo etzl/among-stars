@@ -27,6 +27,7 @@ PANEL *stdpnl, *pointspnl, *msgpnl;
 WINDOW *pointswin, *menuwin, *msgwin, *descwin;
 MENU* mainmenu;
 std::vector<ITEM*> m_items;
+std::mutex access_curses;
 
 
 void init(bool);
@@ -64,6 +65,11 @@ int main(int argc, char* argv[])
 
         auto tp2 = std::chrono::steady_clock::now();
         Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
+
+        // int len = snprintf(NULL, 0, "%f", Game_manager::deltatime);
+        // char numtostr[len];
+        // sprintf(numtostr, "%f", Game_manager::deltatime);
+        // showmessage(numtostr);
     }
 }
 
@@ -85,7 +91,7 @@ void init(bool rwm)
 
     // windows
     pointswin = newwin(3, 0, 0, COLS-5);
-    msgwin = newwin(0, 0, LINES-5, COLS-10);
+    msgwin = newwin(0, 0, LINES-4, COLS-10);
     int m_nlines = 12, m_ncols = 50, m_begy = (LINES-m_nlines)/2,
      m_begx = (COLS-m_ncols)/2;
     menuwin = newwin(m_nlines, m_ncols, m_begy, m_begx);
@@ -191,6 +197,8 @@ void input()
 
 void draw()
 {
+    std::scoped_lock lck {access_curses};
+
     erase();
 
     Game_manager::player.draw(stdscr);
@@ -205,15 +213,14 @@ void draw()
     doupdate();
 }
 
-std::mutex access_curses;
 /* This function should not be called directly but from 'showmessage' function */
 void task_showmessage(const char* msg)
 {
     std::scoped_lock lock {access_curses};
 
+    show_panel(msgpnl);
     print_per_line(msgwin, msg);
 
-    show_panel(msgpnl);
     update_panels();
     doupdate();
 
@@ -222,6 +229,8 @@ void task_showmessage(const char* msg)
     hide_panel(msgpnl);
     update_panels();
     doupdate();
+
+    flushinp(); // flush inputs which inserted during lock
 }
 void showmessage(const char* msg)
 {
