@@ -1,5 +1,5 @@
 #define _DEBUG
-// #define O_MENU
+#define O_MENU
 
 
 
@@ -30,6 +30,7 @@ MENU* mainmenu;
 std::vector<ITEM*> m_items;
 std::mutex access_curses;
 std::atomic_bool thr_run = false;
+bool menu = false;
 
 
 void init(bool);
@@ -67,11 +68,10 @@ int main(int argc, char* argv[])
 
         auto tp2 = std::chrono::steady_clock::now();
         Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
-
-        // int len = snprintf(NULL, 0, "%f", Game_manager::deltatime);
-        // char numtostr[len];
-        // sprintf(numtostr, "%f", Game_manager::deltatime);
-        // showmessage(numtostr);
+        if (menu) { // dont include the time we spent in the menu, also give player 1 frame to think about
+            menu = false;
+            Game_manager::deltatime = 0;
+        }
     }
 }
 
@@ -125,11 +125,6 @@ void init(bool rwm)
     menu_opts_off(mainmenu, O_SHOWDESC);
     set_menu_mark(mainmenu, "> ");
 
-#ifdef O_MENU
-    if (!rwm)
-        showmenu();
-#endif
-
     stdpnl = new_panel(stdscr);
     pointspnl = new_panel(pointswin);
     msgpnl = new_panel(msgwin);
@@ -137,8 +132,15 @@ void init(bool rwm)
     update_panels();
     doupdate();
 
-    Game_manager::player = Player{static_cast<float>(LINES)/2,
-     static_cast<float>(COLS)/2};
+    Game_manager::player = Player{static_cast<float>(_Player_initial_y),
+     static_cast<float>(_Player_initial_x)};
+
+#ifdef O_MENU
+    if (!rwm)
+        showmenu();
+#endif
+
+    item_opts_on(m_items[0], O_SELECTABLE);
 }
 void finish()
 {
@@ -265,6 +267,7 @@ void showmenu_desc()
 
 void showmenu()
 {
+    menu = true;
     // update background!
     erase();
     refresh();
@@ -295,7 +298,14 @@ void showmenu()
                     std::string iname {item_name(cur_item)};
                     if (iname == "Exit")
                         finish();
-                    else if (iname == "New Game")
+                    else if (iname == "New Game") {
+                        if (item_opts(m_items[0]) & O_SELECTABLE) {
+                            Game_manager::restart();
+                            ch = 27;
+                        }
+                        else ch = 27;
+                    }
+                    else if (iname == "Resume")
                         ch = 27;
                 }
                 break;

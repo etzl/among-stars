@@ -23,6 +23,9 @@ constexpr std::chrono::seconds _Showmessage_timer(1);
 constexpr std::chrono::seconds _Shoot_interval(3);
 constexpr std::chrono::milliseconds _timeoutms(50);
 
+#define _Player_initial_x COLS/2
+#define _Player_initial_y LINES/2
+
 
 
 
@@ -37,8 +40,9 @@ public:
 
     static void generate_enemies();
     static void move_enemies();
-    static void update(); /* Update frame */
-    static void shoot(); /* Enemy shoot logic */
+    static void update(); /* update frame */
+    static void shoot(); /* enemy shoot logic */
+    static void restart(); /* restart variables to their initial state */
 };
 
 

@@ -188,7 +188,16 @@ void Game_manager::update()
     }
 }
 
-Player Game_manager::player = Player{0, 0}; // can't correctly initialize until main.cpp:init()
+void Game_manager::restart()
+{
+    player = {static_cast<float>(_Player_initial_y),
+     static_cast<float>(_Player_initial_x)};
+    player_points = 0;
+    enemies.clear();
+    bullets.clear();
+}
+
+Player Game_manager::player {0, 0}; // can't correctly initialize until main.cpp::init()
 std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
 int Game_manager::player_points = 0;
