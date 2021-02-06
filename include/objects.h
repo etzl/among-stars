@@ -5,7 +5,7 @@
 
 
 constexpr float _enemyspeed = 5;
-constexpr float _playerspeed = 18;
+constexpr float _playerspeed = 20;
 constexpr int _player_maxhealth = 10;
 constexpr int _enemy_maxhealth = 1;
 

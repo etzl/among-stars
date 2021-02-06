@@ -1,5 +1,4 @@
-#define _DEBUG
-#define O_MENU
+// #define _DEBUG
 
 
 
@@ -46,7 +45,7 @@ void print_per_line(WINDOW*, const char*);
 void checkargs(int count, char* argv[], bool& rwm)
 {
     for (int i=0; i!=count; ++i) {
-        if (strcmp(argv[i], "--no-menu"))
+        if (std::strcmp(argv[i], "--no-menu") == 0)
             rwm = true;
     }
 }
@@ -107,7 +106,7 @@ void init(bool rwm)
     // items
     m_items.reserve(5);
     m_items.push_back(new_item("Resume", "Continue where you left"));
-    m_items.push_back(new_item("New Game", nullptr));
+    m_items.push_back(new_item("New Game", "Start a fresh game"));
     m_items.push_back(new_item("Help", "How to play"));
     m_items.push_back(new_item("Exit", nullptr));
     m_items.push_back(nullptr);
@@ -135,7 +134,7 @@ void init(bool rwm)
     Game_manager::player = Player{static_cast<float>(_Player_initial_y),
      static_cast<float>(_Player_initial_x)};
 
-#ifdef O_MENU
+#ifndef _DEBUG
     if (!rwm)
         showmenu();
 #endif
@@ -217,7 +216,7 @@ void draw()
     doupdate();
 }
 
-/* This function should not be called directly but from 'showmessage' function */
+/* This function used only by showmessage(), should not be called directly */
 void task_showmessage(const char* msg)
 {
     std::unique_lock lck {access_curses};
@@ -317,6 +316,7 @@ void showmenu()
     wrefresh(menuwin);
 }
 
+/* print a text in the given window putting maximum words that can be shown in a line */
 void print_per_line(WINDOW* place, const char* msg)
 {
     using namespace std;

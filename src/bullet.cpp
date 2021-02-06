@@ -11,7 +11,6 @@ bool Bullet::update()
 {
     move(direction);
     if (direction == Dir::up) {
-        // biggest distance means the enemy we passed first (to attack)
         float lastbigdistance = 0;
         int index;
         bool hit = false;
@@ -19,7 +18,7 @@ bool Bullet::update()
         for (int i=0; i<Game_manager::enemies.size(); ++i)
             if (Game_manager::enemies[i].inrange(x)) {
                 float distance = Game_manager::enemies[i].gety() - y;
-                // we hit or already passed the enemy
+                // check if we hit or already passed the enemy
                 // implicitely check for distance >= 0
                 if (lastbigdistance <= distance) {
                     lastbigdistance = distance;
@@ -36,7 +35,7 @@ bool Bullet::update()
     else
         if (Game_manager::player.inrange(x)) {
             float distance = y - Game_manager::player.gety();
-            if (0 < distance) {
+            if (0 <= distance) {
                 Game_manager::player.hit(_bulletdamage);
                 return 1;
             }
