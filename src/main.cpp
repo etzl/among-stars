@@ -10,6 +10,7 @@
 #include <algorithm>
 #include <thread>
 #include <mutex>
+#include <atomic>
 #include <chrono>
 #include <cstring>
 #include <regex>
@@ -28,6 +29,7 @@ WINDOW *pointswin, *menuwin, *msgwin, *descwin;
 MENU* mainmenu;
 std::vector<ITEM*> m_items;
 std::mutex access_curses;
+std::atomic_bool thr_run = false;
 
 
 void init(bool);
@@ -197,7 +199,7 @@ void input()
 
 void draw()
 {
-    std::scoped_lock lck {access_curses};
+    std::scoped_lock lock {access_curses};
 
     erase();
 
@@ -216,7 +218,7 @@ void draw()
 /* This function should not be called directly but from 'showmessage' function */
 void task_showmessage(const char* msg)
 {
-    std::scoped_lock lock {access_curses};
+    std::unique_lock lck {access_curses};
 
     show_panel(msgpnl);
     print_per_line(msgwin, msg);
@@ -224,16 +226,22 @@ void task_showmessage(const char* msg)
     update_panels();
     doupdate();
 
+    lck.unlock();
     std::this_thread::sleep_for(_Showmessage_timer);
+    lck.lock();
 
     hide_panel(msgpnl);
     update_panels();
     doupdate();
 
-    flushinp(); // flush inputs which inserted during lock
+    thr_run = false;
 }
 void showmessage(const char* msg)
 {
+    if (thr_run)
+        return;
+
+    thr_run = true;
     std::thread task {task_showmessage, msg};
     task.detach();
 }
