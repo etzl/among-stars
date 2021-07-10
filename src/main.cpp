@@ -1,19 +1,18 @@
 // #define _DEBUG
 
-
-
 #include <curses.h>
 #include <panel.h>
 #include <menu.h>
-
 #include <algorithm>
 #include <thread>
 #include <mutex>
 #include <atomic>
 #include <chrono>
 #include <cstring>
+#include <string>
 #include <regex>
 #include <chrono>
+#include <cassert>
 
 #include "objects.h"
 #include "gamemanager.h"
@@ -39,7 +38,7 @@ void draw();
 void showmessage(const char*);    /* show a message for specified time */
 void finish();
 void showmenu();
-void print_per_line(WINDOW*, const char*);
+void text_buffer(WINDOW*, const char*);
 
 
 void checkargs(int count, char* argv[], bool& rwm)
@@ -216,13 +215,13 @@ void draw()
     doupdate();
 }
 
-/* This function used only by showmessage(), should not be called directly */
+/* This function used only by showmessage(), **DO NOT CALL IT DIRECTLY!** */
 void task_showmessage(const char* msg)
 {
     std::unique_lock lck {access_curses};
 
     show_panel(msgpnl);
-    print_per_line(msgwin, msg);
+    text_buffer(msgwin, msg);
 
     update_panels();
     doupdate();
@@ -257,7 +256,7 @@ void update()
 
 void showmenu_desc()
 {
-    print_per_line(descwin, item_description(current_item(mainmenu)));
+    text_buffer(descwin, item_description(current_item(mainmenu)));
 
     static const int maxcols = getmaxx(descwin);
     mvwaddstr(descwin, 0, (maxcols-std::strlen("Description"))/2, "Description");
@@ -300,12 +299,14 @@ void showmenu()
                     else if (iname == "New Game") {
                         if (item_opts(m_items[0]) & O_SELECTABLE) {
                             Game_manager::restart();
-                            ch = 27;
                         }
-                        else ch = 27;
+                        ch = 27;
                     }
                     else if (iname == "Resume")
                         ch = 27;
+                    else if (iname == "Help") {
+                        // show help
+                    }
                 }
                 break;
         }
@@ -316,54 +317,186 @@ void showmenu()
     wrefresh(menuwin);
 }
 
-/* print a text in the given window putting maximum words that can be shown in a line */
-void print_per_line(WINDOW* place, const char* msg)
+void text_buffer(WINDOW* place, const char* msg)
 {
     using namespace std;
-
-    werase(place);
-    box(place, 0, 0);
-
-    int cur_line = 1;
-    wmove(place, cur_line, 1);
-    wrefresh(place);
-
     if (msg == nullptr)
         return;
-    string_view desc {msg};
-    // use only white-space to seperate words
+
+    // design (prepare) the window
+    auto design_w = [](WINDOW* win, const char* title) {
+        int maxx = getmaxx(win);
+        werase(win);
+        box(win, 0, 0);
+        mvwaddstr(win, 0, (maxx-strlen(title))/2, title);
+    };
+    // returns true if the character is not an attribute character
+    auto not_attr = [](const char x) {
+        constexpr string_view attrib = "*\n\b";
+        return attrib.find(x) == string_view::npos;
+    };
+
     static const regex pattern {R"((\S+\s*))"};
-    size_t count = 0;
-    string_view::const_iterator remain = desc.cbegin();
+    string_view desc {msg};
+    int bufl = 0, bufc = 0, lsize = 0, winattrs = 0, prev = 0;
 
-    const int maxx = getmaxx(place);
-    const int allowed_m = maxx-2;   // occupied by box around the window
+    // do not use these two variables; use 'maxc' and 'maxl' instead
+    int maxx, maxy;
+    getmaxyx(place, maxy, maxx);
+    const int maxc = maxx - 2, maxl = maxy - 2; // sizes which we can actually use
+    int m_line = maxl;
 
-    if (allowed_m < desc.size()) {
-        for (cregex_iterator iter {desc.cbegin(), desc.cend(), pattern}; ; ++iter) {
-            // reached the end of description before reaching end of line
-            if (iter == cregex_iterator{}) {
-                for (auto p = remain; p != remain+count; ++p)
-                    waddch(place, *p);
-                break;
+    design_w(place, "");
+
+    vector<chtype> buffer; buffer.reserve(m_line*maxc);
+
+    /* write white-space until the end of current line
+     * column = position to start in the line; passing variable 'bufc' causes to write
+     * white-space to the remaining characters in the buffer
+     */
+    auto newline_buf = [&](int column) {
+        bufc = 0; bufl++;
+        int size = maxc - column - 1;
+        while (size-- > 0) {
+            buffer.push_back(32);
+        }
+    };
+
+    bool bflag = false;
+
+    // process text
+    for (cregex_iterator iter {desc.cbegin(), desc.cend(), pattern}; iter!=cregex_iterator{}; ++iter) {
+        string word = iter->str(1);
+
+        int wsize = count_if(word.begin(), word.end(), not_attr);
+        lsize += wsize;
+        if (lsize > maxc && wsize < maxc && word.front() != '\n') {
+            newline_buf(bufc);
+            lsize = wsize;
+        }
+
+        for (auto ch=word.begin(); ch!=word.end(); ++ch) {
+            if (*ch == '<');
+                // winattrs |= COLOR_PAIR(5);
+            else if (*ch == '*') {
+                if (winattrs & A_BOLD) {
+                    if (prev == '*')
+                        winattrs ^= A_ITALIC;
+                    winattrs ^= A_BOLD;
+                }
+                else
+                    winattrs |= A_BOLD;
+
+                prev = *ch;
+                continue;
+            }
+            else if (*ch == '\n') {
+                newline_buf(bufc);
+                auto next = ch + 1;
+                if (regex_match(next, word.end(), regex{R"(\s+)"})) {
+                    lsize = 0;
+                    break;
+                }
+                else {
+                    lsize = count_if(next, word.end(), not_attr);
+                }
+                continue;
+            }
+            else if (*ch == '\b') {
+                /* NOTE: this logic assumes that you put \b signs before and
+                 * after each word. If you do otherwise (e.g. put them between
+                 * each word) you might see strange results
+                 */
+                if (bflag) {
+                    // another pair of \b: do nothing
+                    bflag = false;
+                    continue;
+                }
+
+                lsize -= count_if(ch+1, word.end(), not_attr);
+
+                // find next \b
+                for (++iter; iter!=cregex_iterator{}; iter++) {
+                    string_view tmp = iter->str(1);
+                    word += tmp;
+                    if (tmp.find('\b') != string::npos) {
+                        bflag = true;
+                        break;
+                    }
+                }
+                if (!bflag) // This is probably not what we wanted!
+                    throw "another \\b character not found";
+
+                // count new length
+                wsize = count_if(ch+1, word.end(), not_attr);
+                lsize += wsize;
+
+                assert(wsize < maxc);
+                if (lsize > maxc && wsize < maxc)
+                    newline_buf(bufc);
+
+                continue;
             }
 
-            int tmp = (*iter)[1].length();
-            count += tmp;
-
-            if (count >= allowed_m) {
-                if (count != allowed_m)
-                    count -= tmp;
-                for (auto p = remain; p != remain+count; ++p)
-                    waddch(place, *p);
-                wmove(place, ++cur_line, 1);
-
-                remain += count;
-                count = (count == allowed_m) ? 0 : tmp;
+            // make room for new characters
+            if (bufc == maxc)
+                newline_buf(bufc);
+            if (bufl == m_line) {
+                m_line += maxl;
+                buffer.reserve(m_line*maxc);
             }
+
+            // finally write to buffer
+            buffer.push_back(*ch | winattrs);
+            bufc++;
+            prev = *ch;
+
+            if (*ch == '>');
+                // winattrs ^= COLOR_PAIR(5);
         }
     }
-    else wprintw(place, "%s", desc.data());
+
+    // print buffer
+    bufl=0; // mark the begging of the buffer - we will start printing from here
+    int winline = 1; // track current line in the window (starting from 1)
+    const int maxbufl = buffer.size() / maxc;
+
+    for (int line = bufl; line < maxbufl; ++line) {
+        wmove(place, ++winline, 1);
+
+        // window lines exceeded - go to interactive mode
+        if (winline > maxl) {
+            get_input:
+                int ch = wgetch(place);
+                switch (ch) {
+                    case 'k':
+                    case KEY_UP:
+                        if (bufl != 0) {
+                            line = --bufl;
+                            break;
+                        }
+                        goto get_input;
+                    case 'j':
+                    case KEY_DOWN:
+                        if (bufl != maxbufl) {
+                            line = ++bufl;
+                            break;
+                        }
+                        goto get_input;
+                    case 'q':
+                    default:
+                        goto get_input;
+                }
+
+
+            winline = 1;
+            wmove(place, winline, 1);
+        }
+
+        for (bufc = 0; bufc < maxc; bufc++) {
+            waddch(place, buffer[line*maxc + bufc]);
+        }
+    }
 
     wrefresh(place);
 }
