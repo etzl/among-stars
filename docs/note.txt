@@ -1,7 +1,0 @@
-text_buffer() important variables:
-    m_line = max *lines* of characters in the memory (not actual lines)
-    vector.size() = max actual elements in the buffer
-    maxl = maximum (allowed) lines per screen
-    maxc = maximum (allowed) characters per line
-    bufl = current line that we are writing
-    bufc = current character position in line
