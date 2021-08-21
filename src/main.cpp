@@ -13,6 +13,8 @@
 #include <regex>
 #include <chrono>
 #include <cassert>
+#include <string_view>
+#include <cmath>
 
 #include "objects.h"
 #include "gamemanager.h"
@@ -30,12 +32,14 @@ std::mutex access_curses;
 std::atomic_bool thr_run = false;
 bool menu = false;
 
+constexpr std::string_view Help_description {"Why? painful the sixteen \bhow minuter looking nor. Subject but why?\b ten earnest husband imagine *sixteen* brandon. **Are unpleasing occasional celebrated?** motionless unaffected conviction out. \nEvil make to no five they. Stuff at avoid of sense small fully it \nwhose an. Ten scarcely distance moreover handsome age although. As when have find fine or said no mile. He in dispatched in imprudence\n dissimilar be possession unreserved insensible. She evil face fine calm have now. Separate screened he outweigh of distance landlord. Oh acceptance apartments up sympathize astonished delightful. Waiting him new lasting towards. Continuing melancholy especially so to. Me unpleasing impossible in attachment announcing so astonished. What ask leaf may nor upon door. Tended remain my do stairs. Oh smiling amiable am so visited cordial in offices hearted. So feel been kept be at gate. Be september it extensive oh concluded of certainty. In read most gate at body held it ever no. Talking justice welcome message inquiry in started of am me. Led own hearted highest visited lasting sir through compass his. Guest tiled he quick by so these trees am. It announcing alteration at surrounded comparison. Folly words widow one downs few age every seven. If miss part by fact he park just shew. Discovered had get considered projection who favourable. Necessary up knowledge it tolerably. Unwilling departure education is be dashwoods or an. Use off agreeable law unwilling sir deficient curiosity instantly. Easy mind life fact with see has bore ten. Parish any chatty can elinor direct for former. Up as meant widow equal an share least. Allow miles wound place the leave had. To sitting subject no improve studied limited. Ye indulgence unreserved connection alteration appearance my an astonished. Up as seen sent make he they of. Her raising and himself pasture believe females. Fancy she stuff after aware merit small his. Charmed esteems luckily age out. Stronger unpacked felicity to of mistaken. Fanny at wrong table ye in. Be on easily cannot innate in lasted months on. Differed and and felicity steepest mrs age outweigh. Opinions learning likewise daughter now age outweigh. Raptures stanhill my greatest mistaken or exercise he on although. Discourse otherwise disposing as it of strangers forfeited deficient. Arrival entered an if drawing request. How daughters not promotion few knowledge contented. Yet winter law behind number stairs garret excuse. Minuter we natural conduct gravity if pointed oh no. Am immediate unwilling of attempted admitting disposing it. Handsome opinions on am at it ladyship. Certainly elsewhere my do allowance at. The address farther six hearted hundred towards husband. Are securing off occasion remember daughter replying. Held that feel his see own yet. Strangers ye to he sometimes propriety in. She right plate seven has. Bed who perceive judgment did marianne. Paid was hill sir high. For him precaution any advantages dissimilar comparison few terminated projecting. Prevailed discovery immediate objection of ye at. Repair summer one winter living feebly pretty his. In so sense am known these since. Shortly respect ask cousins brought add tedious nay. Expect relied do we genius is. On as around spirit of hearts genius. Is raptures daughter branched laughter peculiar in settling. So by colonel hearted ferrars. Draw from upon here gone add one. He in sportsman household otherwise it perceived instantly. Is inquiry no he several excited am. Called though excuse length ye needed it he having. Whatever throwing we on resolved entrance together graceful. Mrs assured add private married removed believe did she."};
+
 
 void init(bool);
 void input();
 void update();
 void draw();
-void showmessage(const char*);    /* show a message for specified time */
+void showmessage(std::string_view);    /* show a message for specified time */
 void finish();
 void showmenu();
 void text_buffer(WINDOW*, const char*);
@@ -98,7 +102,7 @@ void init(bool rwm)
 
     keypad(menuwin, TRUE);
 
-    int m_dernlines = m_nlines-3, m_derncols = 20, m_derbegy = 2, m_derbegx = 4;
+    int m_dernlines = m_nlines-2, m_derncols = 20, m_derbegy = 2, m_derbegx = 4;
     int m_descols = 30;
     descwin = derwin(menuwin, m_dernlines, m_descols, 1, m_ncols-m_descols-1);
 
@@ -121,7 +125,7 @@ void init(bool rwm)
         m_derbegx));
     set_menu_format(mainmenu, m_dernlines-2, 1);
     menu_opts_off(mainmenu, O_SHOWDESC);
-    set_menu_mark(mainmenu, "> ");
+    set_menu_mark(mainmenu, "* ");
 
     stdpnl = new_panel(stdscr);
     pointspnl = new_panel(pointswin);
@@ -188,11 +192,13 @@ void input()
             break;
         case 'q':   // a shortcut for quiting
             finish();
+            break;
         case 27:    // <Esc>
             showmenu();
             break;
         default:
-            showmessage("Wrong input!");
+            using namespace std::literals::string_view_literals;
+            showmessage("Wrong input!"sv);
             break;
     }
 }
@@ -215,13 +221,23 @@ void draw()
     doupdate();
 }
 
+// design (prepare) the window
+void design_w(WINDOW* win, const char* title)
+{
+    int maxx = getmaxx(win);
+    werase(win);
+    box(win, 0, 0);
+    mvwaddstr(win, 0 , (maxx-strlen(title))/2, title);
+    wrefresh(win);
+}
+
 /* This function used only by showmessage(), **DO NOT CALL IT DIRECTLY!** */
-void task_showmessage(const char* msg)
+void task_showmessage(const std::string_view msg)
 {
     std::unique_lock lck {access_curses};
 
     show_panel(msgpnl);
-    text_buffer(msgwin, msg);
+    text_buffer(msgwin, msg.data());
 
     update_panels();
     doupdate();
@@ -236,7 +252,7 @@ void task_showmessage(const char* msg)
 
     thr_run = false;
 }
-void showmessage(const char* msg)
+void showmessage(std::string_view msg)
 {
     if (thr_run)
         return;
@@ -256,11 +272,23 @@ void update()
 
 void showmenu_desc()
 {
+    design_w(descwin, "Description");
     text_buffer(descwin, item_description(current_item(mainmenu)));
+}
 
-    static const int maxcols = getmaxx(descwin);
-    mvwaddstr(descwin, 0, (maxcols-std::strlen("Description"))/2, "Description");
-    wrefresh(descwin);
+void show_help()
+{
+    unpost_menu(mainmenu);
+    // change background color of the menu
+    text_buffer(menuwin, Help_description.data());
+    werase(menuwin);
+    wbkgd(menuwin, 0);
+    // set default color
+    box(menuwin, 0, 0);
+    mvwaddstr(menuwin, 0, 2, "Menu!");
+    post_menu(mainmenu);
+    showmenu_desc();
+    wrefresh(menuwin);
 }
 
 void showmenu()
@@ -305,7 +333,7 @@ void showmenu()
                     else if (iname == "Resume")
                         ch = 27;
                     else if (iname == "Help") {
-                        // show help
+                        show_help();
                     }
                 }
                 break;
@@ -320,16 +348,11 @@ void showmenu()
 void text_buffer(WINDOW* place, const char* msg)
 {
     using namespace std;
+
     if (msg == nullptr)
         return;
+    string_view desc {msg};
 
-    // design (prepare) the window
-    auto design_w = [](WINDOW* win, const char* title) {
-        int maxx = getmaxx(win);
-        werase(win);
-        box(win, 0, 0);
-        mvwaddstr(win, 0, (maxx-strlen(title))/2, title);
-    };
     // returns true if the character is not an attribute character
     auto not_attr = [](const char x) {
         constexpr string_view attrib = "*\n\b";
@@ -337,8 +360,7 @@ void text_buffer(WINDOW* place, const char* msg)
     };
 
     static const regex pattern {R"((\S+\s*))"};
-    string_view desc {msg};
-    int bufl = 0, bufc = 0, lsize = 0, winattrs = 0, prev = 0;
+    int bufl = 0, bufc = 0, winattrs = 0, prev = 0;
 
     // do not use these two variables; use 'maxc' and 'maxl' instead
     int maxx, maxy;
@@ -346,23 +368,24 @@ void text_buffer(WINDOW* place, const char* msg)
     const int maxc = maxx - 2, maxl = maxy - 2; // sizes which we can actually use
     int m_line = maxl;
 
-    design_w(place, "");
+    design_w(place, "Description");
 
     vector<chtype> buffer; buffer.reserve(m_line*maxc);
 
     /* write white-space until the end of current line
-     * column = position to start in the line; passing variable 'bufc' causes to write
+     * column: position to start in the line; passing variable 'bufc' causes to write
      * white-space to the remaining characters in the buffer
      */
     auto newline_buf = [&](int column) {
         bufc = 0; bufl++;
-        int size = maxc - column - 1;
+        int size = maxc - column;
         while (size-- > 0) {
             buffer.push_back(32);
         }
     };
 
     bool bflag = false;
+    int lsize = 0;
 
     // process text
     for (cregex_iterator iter {desc.cbegin(), desc.cend(), pattern}; iter!=cregex_iterator{}; ++iter) {
@@ -413,7 +436,7 @@ void text_buffer(WINDOW* place, const char* msg)
                     continue;
                 }
 
-                lsize -= count_if(ch+1, word.end(), not_attr);
+                lsize -= wsize;
 
                 // find next \b
                 for (++iter; iter!=cregex_iterator{}; iter++) {
@@ -424,14 +447,19 @@ void text_buffer(WINDOW* place, const char* msg)
                         break;
                     }
                 }
-                if (!bflag) // This is probably not what we wanted!
+
+                if (!bflag) // probably not what we wanted!
                     throw "another \\b character not found";
 
+                // word iterators are undefined
+                ch = word.begin();
                 // count new length
                 wsize = count_if(ch+1, word.end(), not_attr);
                 lsize += wsize;
 
-                assert(wsize < maxc);
+                if (wsize >= maxc)
+                    throw "characters between \\b can't be larger than max column size of the window";
+
                 if (lsize > maxc && wsize < maxc)
                     newline_buf(bufc);
 
@@ -446,8 +474,9 @@ void text_buffer(WINDOW* place, const char* msg)
                 buffer.reserve(m_line*maxc);
             }
 
-            // finally write to buffer
+            // finally write to the buffer
             buffer.push_back(*ch | winattrs);
+            // count newly added character
             bufc++;
             prev = *ch;
 
@@ -458,45 +487,58 @@ void text_buffer(WINDOW* place, const char* msg)
 
     // print buffer
     bufl=0; // mark the begging of the buffer - we will start printing from here
-    int winline = 1; // track current line in the window (starting from 1)
-    const int maxbufl = buffer.size() / maxc;
+    int winline = 0; // track current line in the window (starting from 1)
+    const double maxbufl = std::ceil(static_cast<double>(buffer.size()) / maxc);
+    bool interactive = false;
+    const auto lch_size = buffer.size() % maxc;
+    // max value of bufl; before exceeding the buffer
+    const auto mbufl = maxbufl - maxl;
 
-    for (int line = bufl; line < maxbufl; ++line) {
+    for (int line = bufl; ; ++line) {
+        if (line == maxbufl && !interactive)
+            break;
         wmove(place, ++winline, 1);
 
         // window lines exceeded - go to interactive mode
         if (winline > maxl) {
+            interactive = true;
             get_input:
                 int ch = wgetch(place);
                 switch (ch) {
                     case 'k':
                     case KEY_UP:
-                        if (bufl != 0) {
+                        if (bufl > 0) {
                             line = --bufl;
                             break;
                         }
                         goto get_input;
                     case 'j':
                     case KEY_DOWN:
-                        if (bufl != maxbufl) {
+                        if (bufl < mbufl) {
                             line = ++bufl;
                             break;
                         }
                         goto get_input;
                     case 'q':
+                        goto break_interactive;
                     default:
                         goto get_input;
                 }
 
-
+            design_w(place, "Description");
             winline = 1;
             wmove(place, winline, 1);
         }
 
         for (bufc = 0; bufc < maxc; bufc++) {
-            waddch(place, buffer[line*maxc + bufc]);
+            if (line == maxbufl - 1) { // this is last line in the buffer
+                if (bufc == lch_size && lch_size != 0)
+                    break;
+            }
+            waddch(place, buffer.at(line*maxc + bufc));
         }
     }
 
-    wrefresh(place);
+    break_interactive:
+        wrefresh(place);
 }
