@@ -399,8 +399,9 @@ void text_buffer(WINDOW* place, const char* msg)
         }
 
         for (auto ch=word.begin(); ch!=word.end(); ++ch) {
-            if (*ch == '<');
+            if (*ch == '<') {
                 // winattrs |= COLOR_PAIR(5);
+            }
             else if (*ch == '*') {
                 if (winattrs & A_BOLD) {
                     if (prev == '*')
@@ -480,8 +481,9 @@ void text_buffer(WINDOW* place, const char* msg)
             bufc++;
             prev = *ch;
 
-            if (*ch == '>');
+            if (*ch == '>') {
                 // winattrs ^= COLOR_PAIR(5);
+            }
         }
     }
 
