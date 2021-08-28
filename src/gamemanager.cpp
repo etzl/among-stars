@@ -183,15 +183,16 @@ void Game_manager::update()
         else
             ++p;
     }
+    // game over
     if (player.gethealth() <= 0) {
-        // GAME OVER! implementation...
+        
     }
 }
 
 void Game_manager::restart()
 {
     player = {static_cast<float>(_Player_initial_y),
-     static_cast<float>(_Player_initial_x)};
+        static_cast<float>(_Player_initial_x)};
     player_points = 0;
     enemies.clear();
     bullets.clear();

@@ -192,7 +192,7 @@ void input()
             break;
         case 'q':   // a shortcut for quiting
             finish();
-            break;
+            [[fallthrough]];
         case 27:    // <Esc>
             showmenu();
             break;
@@ -221,7 +221,7 @@ void draw()
     doupdate();
 }
 
-// design (prepare) the window
+// design (prepare) the window with title
 void design_w(WINDOW* win, const char* title)
 {
     int maxx = getmaxx(win);
@@ -231,7 +231,7 @@ void design_w(WINDOW* win, const char* title)
     wrefresh(win);
 }
 
-/* This function used only by showmessage(), **DO NOT CALL IT DIRECTLY!** */
+/* This function used only by showmessage() */
 void task_showmessage(const std::string_view msg)
 {
     std::unique_lock lck {access_curses};
