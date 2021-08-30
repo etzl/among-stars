@@ -70,7 +70,7 @@ int main(int argc, char* argv[])
 
         auto tp2 = std::chrono::steady_clock::now();
         Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
-        if (menu) { // dont include the time we spent in the menu, also give player 1 frame to think about
+        if (menu) { // dont include the time we've spent in the menu, also give player 1 frame to think about
             menu = false;
             Game_manager::deltatime = 0;
         }
@@ -279,11 +279,11 @@ void showmenu_desc()
 void show_help()
 {
     unpost_menu(mainmenu);
-    // change background color of the menu
+    // change background color of the menu here...
     text_buffer(menuwin, Help_description.data());
     werase(menuwin);
     wbkgd(menuwin, 0);
-    // set default color
+    // set default color here...
     box(menuwin, 0, 0);
     mvwaddstr(menuwin, 0, 2, "Menu!");
     post_menu(mainmenu);

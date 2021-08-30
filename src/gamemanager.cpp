@@ -196,6 +196,7 @@ void Game_manager::restart()
     player_points = 0;
     enemies.clear();
     bullets.clear();
+    deltatime = 0;
 }
 
 Player Game_manager::player {0, 0}; // can't correctly initialize until main.cpp::init()
