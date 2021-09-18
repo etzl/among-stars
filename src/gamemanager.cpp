@@ -185,7 +185,7 @@ void Game_manager::update()
     }
     // game over
     if (player.gethealth() <= 0) {
-        
+        player.isdead = true;
     }
 }
 
