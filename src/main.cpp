@@ -209,13 +209,13 @@ void draw()
 
     erase();
 
-    Game_manager::player.draw(stdscr);
+    auto drw = [](const Drawable_obj& obj) { obj.draw(stdscr); };
 
+    drw(Game_manager::player);
     std::for_each(Game_manager::enemies.begin(), Game_manager::enemies.end(),
-    [](Enemy& enemy) { enemy.draw(stdscr); });
-
+        drw);
     std::for_each(Game_manager::bullets.begin(), Game_manager::bullets.end(),
-    [](Bullet& b) { b.draw(stdscr); });
+        drw);
 
     update_panels();
     doupdate();
