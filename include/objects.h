@@ -87,6 +87,7 @@ private:
 
 
 
+/* custom type to hold window properties and make it easier to define new windows */
 // struct Window_prop {
 //     constexpr Window_prop(int y, int x, int l, int c) :y{y}, x{x}, lines{l},
 //     cols{c} {}
