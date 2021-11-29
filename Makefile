@@ -6,7 +6,7 @@ OBJDIR := src/obj
 
 # Compiler and options
 CC := g++
-FLAGS := -lpanel -lmenu -lncurses -lpthread -I$(INCDIR) -std=c++17 -g -ftrapv -Woverflow -Wconversion -Wpedantic -Wextra -Wall -Wdouble-promotion -Wformat=2 -Wmismatched-new-delete
+FLAGS := -lpanel -lmenu -lncurses -lpthread -I$(INCDIR) -std=c++17 -g -ftrapv -Woverflow -Wconversion -Wpedantic -Wextra -Wall -Wdouble-promotion -Wformat=2
 
 # Target executable
 TARGET := among_stars
