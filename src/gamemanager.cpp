@@ -183,18 +183,20 @@ void Game_manager::update()
         else
             ++p;
     }
+    // game over
     if (player.gethealth() <= 0) {
-        // GAME OVER! implementation...
+        player.isdead = true;
     }
 }
 
 void Game_manager::restart()
 {
     player = {static_cast<float>(_Player_initial_y),
-     static_cast<float>(_Player_initial_x)};
+        static_cast<float>(_Player_initial_x)};
     player_points = 0;
     enemies.clear();
     bullets.clear();
+    deltatime = 0;
 }
 
 Player Game_manager::player {0, 0}; // can't correctly initialize until main.cpp::init()

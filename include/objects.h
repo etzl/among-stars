@@ -45,6 +45,8 @@ protected:
 
 class Player : public Interactable {
 public:
+    bool isdead = false;
+
     Player(const float y, const float x) :Interactable(_player_maxhealth, y, x,
     _playerspeed) {}
 

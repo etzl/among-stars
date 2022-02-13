@@ -43,6 +43,7 @@ void showmessage(std::string_view);    /* show a message for specified time */
 void finish();
 void showmenu();
 void text_buffer(WINDOW*, const char*);
+void gameover(); /* Game over function */
 
 
 void checkargs(int count, char* argv[], bool& rwm)
@@ -70,7 +71,7 @@ int main(int argc, char* argv[])
 
         auto tp2 = std::chrono::steady_clock::now();
         Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
-        if (menu) { // dont include the time we spent in the menu, also give player 1 frame to think about
+        if (menu) { // dont include the time we've spent in the menu, also give player 1 frame to think about
             menu = false;
             Game_manager::deltatime = 0;
         }
@@ -221,7 +222,7 @@ void draw()
     doupdate();
 }
 
-// design (prepare) the window
+// design (prepare) the window with title
 void design_w(WINDOW* win, const char* title)
 {
     int maxx = getmaxx(win);
@@ -268,6 +269,10 @@ void update()
     Game_manager::move_enemies();
     Game_manager::shoot();
     Game_manager::update();
+
+    if (Game_manager::player.isdead) {
+        gameover();
+    }
 }
 
 void showmenu_desc()
@@ -279,16 +284,37 @@ void showmenu_desc()
 void show_help()
 {
     unpost_menu(mainmenu);
-    // change background color of the menu
+    // change background color of the menu here...
     text_buffer(menuwin, Help_description.data());
     werase(menuwin);
     wbkgd(menuwin, 0);
-    // set default color
+    // set default color here...
     box(menuwin, 0, 0);
     mvwaddstr(menuwin, 0, 2, "Menu!");
     post_menu(mainmenu);
     showmenu_desc();
     wrefresh(menuwin);
+}
+
+void gameover()
+{
+    wclear(menuwin);
+    // change background color here
+    int maxx, maxy;
+    getmaxyx(menuwin, maxy, maxx);
+
+    box(menuwin, 0, 0);
+    char mesg[] = "GAME OVER!";
+    mvwaddstr(menuwin, maxy/2, (maxx-std::strlen(mesg))/2, mesg);
+    refresh();
+    wrefresh(menuwin);
+    std::this_thread::sleep_for(GAMEOVER_TIMER);
+
+    werase(menuwin);
+    wbkgd(menuwin, 0);
+    // set default background color here
+    item_opts_off(m_items[0], O_SELECTABLE);
+    showmenu();
 }
 
 void showmenu()

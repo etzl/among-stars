@@ -22,6 +22,7 @@ constexpr float _Relative_corner = 4;   /* The distance from right or left of th
 constexpr std::chrono::seconds _Showmessage_timer(1);
 constexpr std::chrono::seconds _Shoot_interval(3);
 constexpr std::chrono::milliseconds _timeoutms(50);
+constexpr std::chrono::seconds GAMEOVER_TIMER(3);
 
 #define _Player_initial_x COLS/2
 #define _Player_initial_y (LINES/2)+4
