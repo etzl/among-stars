@@ -28,8 +28,6 @@ constexpr std::chrono::seconds GAMEOVER_TIMER(3);
 #define _Player_initial_y (LINES/2)+4
 
 
-
-
 class Game_manager {
 public:
     static int player_points;
