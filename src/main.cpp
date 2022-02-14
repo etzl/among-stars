@@ -1,4 +1,4 @@
-#define _DEBUG
+// #define _DEBUG
 
 #include <curses.h>
 #include <panel.h>
@@ -16,6 +16,7 @@
 #include <string_view>
 #include <cmath>
 #include <cstdio>
+#include <climits>
 
 #include "objects.h"
 #include "gamemanager.h"
@@ -37,10 +38,15 @@ constexpr int ESC = 27;
 constexpr int POINTSWIN_NLINES = 4;
 constexpr int POINTSWIN_NCOLS = 0;
 constexpr int POINTSWIN_BEGINY = 0;
-#define POINTSWIN_BEGINX COLS-9
+#define POINTSWIN_BEGINX COLS-10
+
+struct Start_Opts {
+    bool nomenu = false;
+    bool nodamage = false;
+};
 
 
-void init(bool);    /* ncurses init */
+void init(const Start_Opts&);    /* ncurses init */
 void input();   /* get user input */
 void update();  /* update (calculate) new positions */
 void draw();    /* update screen */
@@ -53,21 +59,23 @@ void stats(); /* draw player stats (health, points) on the screen */
 
 
 // user can turn options on/off with command line arguments
-void checkargs(int count, char* argv[], bool& rwm)
+void checkargs(int count, char* argv[], Start_Opts& op)
 {
     for (int i=0; i!=count; ++i) {
         if (std::strcmp(argv[i], "--no-menu") == 0)
-            rwm = true;
+            op.nomenu = true;
+        else if (std::strcmp(argv[i], "--no-damage") == 0)
+            op.nodamage = true;
     }
 }
 
 int main(int argc, char* argv[])
 {
-    bool runwithoutmenu = false;
+    Start_Opts opts; // options
     if (0 < argc)
-        checkargs(argc, argv, runwithoutmenu);
+        checkargs(argc, argv, opts);
 
-    init(runwithoutmenu);
+    init(opts);
 
     // main loop
     while (true) {
@@ -86,7 +94,7 @@ int main(int argc, char* argv[])
     }
 }
 
-void init(bool rwm)
+void init(const Start_Opts& opts)
 {
     // curses initializations
     initscr();
@@ -148,8 +156,10 @@ void init(bool rwm)
      static_cast<float>(_Player_initial_x)};
 
 #ifndef _DEBUG
-    if (!rwm)
+    if (!opts.nomenu)
         showmenu();
+    if (opts.nodamage)
+        Game_manager::player.health_cheat() = INT_MAX;
 #endif
 
     item_opts_on(m_items[0], O_SELECTABLE);

@@ -24,7 +24,10 @@ public:
     {
         health -= damage;
     }
-    int gethealth() { return health; }
+    int gethealth() 
+    {
+        return health; 
+    }
 
     bool operator==(const Interactable& cmp)
     {
@@ -59,6 +62,10 @@ public:
     bool inrange(float chkx) const override
     {
         return (chkx >= x-1) && (chkx <= x+1);
+    }
+    int& health_cheat()
+    {
+        return health;
     }
 };
 
