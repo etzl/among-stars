@@ -1,3 +1,6 @@
+#ifndef GAMEMANAGER_CPP
+#define GAMEMANAGER_CPP
+
 #include "gamemanager.h"
 #include "objects.h"
 #include "bullet.h"
@@ -26,37 +29,36 @@ private:
 };
 
 
-
-
 void c_highmode(Enemy& chk)
 {
-    bool allow_high = chk.gety() < _High_distance_from_begin &&
-        std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
+    // if we passed a magic number and there's no other enemy in high mode
+    bool reached_high_ground = chk.gety() < _High_distance_from_begin;
+    bool allow_high = std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
         [](auto& enemy){
             return enemy.mode() == Enemy_states::high;
-        })==Game_manager::enemies.end();
+        }) == Game_manager::enemies.end();
 
-    if (allow_high) {
-        chk.mode() = Enemy_states::high;
-        chk.setspeed(chk.getspeed()+_High_power_speed_increase);
-    }
-    else if (chk.gety() <= 0) {
-        static Rand choose_down {static_cast<int>(Enemy_states::down_left),
-            static_cast<int>(Enemy_states::down_right)};
-        chk.mode() = Enemy_states{choose_down()};
+    if (reached_high_ground) {
+        if (allow_high) {
+            chk.mode() = Enemy_states::high;
+            chk.setspeed(chk.getspeed()+_High_power_speed_increase);
+        }
+        else {
+            static Rand choose_down {static_cast<int>(Enemy_states::down_left),
+                static_cast<int>(Enemy_states::down_right)};
+            chk.mode() = Enemy_states{choose_down()};
+        }
     }
 }
 
 void Game_manager::generate_enemies()
 {
-    static Rand count_rand {_min_enemy_per_row, _max_enemy_per_row};
+    static Rand count_rand {_Min_enemy_per_row, _Max_enemy_per_row};
     static Rand x_rand{2, COLS-3}; // these spaces will be occupied by the shape
     constexpr int y = 0;
 
-
     if (enemies.size() / _Enemy_maximum_generate != 0)
         return;
-
 
     const int max_generate = count_rand();
     for (int i=0; i!=max_generate; ++i) {
@@ -79,11 +81,10 @@ void Game_manager::generate_enemies()
 void Game_manager::move_enemies()
 {
     const static float max_y = LINES - _Allowed_distance_from_end;
-    const static float relative_right = COLS-_Relative_corner;
+    const static float right_distance = COLS - _Allowed_distance_from_corner;
 
     static Rand choose_up {static_cast<int>(Enemy_states::up_left),
         static_cast<int>(Enemy_states::up_right)};
-
 
     for (auto& enemy: enemies) {
         switch (enemy.mode()) {
@@ -99,7 +100,7 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::up) {
                     enemy.move(Dir::right);
 
-                    if (relative_right <= enemy.getx())
+                    if (enemy.getx() >= right_distance)
                         enemy.mode() = Enemy_states::up_left;
                 }
                 else {
@@ -111,7 +112,7 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::up) {
                     enemy.move(Dir::left);
 
-                    if (enemy.getx() <= _Relative_corner)
+                    if (enemy.getx() <= _Allowed_distance_from_corner)
                         enemy.mode() = Enemy_states::up_right;
                 }
                 else {
@@ -122,7 +123,7 @@ void Game_manager::move_enemies()
             case Enemy_states::down_right:
                 if (enemy.lastmove() == Dir::down) {
                     enemy.move(Dir::right);
-                    if (relative_right <= enemy.getx())
+                    if (right_distance <= enemy.getx())
                         enemy.mode() = Enemy_states::down_left;
                 }
                 else {
@@ -136,7 +137,7 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::down) {
                     enemy.move(Dir::left);
 
-                    if (enemy.getx() <= _Relative_corner)
+                    if (enemy.getx() <= _Allowed_distance_from_corner)
                         enemy.mode() = Enemy_states::down_right;
                 }
                 else {
@@ -183,6 +184,7 @@ void Game_manager::update()
         else
             ++p;
     }
+
     // game over
     if (player.gethealth() <= 0) {
         player.isdead = true;
@@ -199,8 +201,10 @@ void Game_manager::restart()
     deltatime = 0;
 }
 
-Player Game_manager::player {0, 0}; // can't correctly initialize until main.cpp::init()
+Player Game_manager::player {0, 0}; // will be initialized in main.cpp::init()
 std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
 int Game_manager::player_points = 0;
 float Game_manager::deltatime = std::chrono::duration<float>(_timeoutms).count(); // makes sense (better than 0) for the first frame
+
+#endif

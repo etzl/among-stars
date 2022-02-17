@@ -41,6 +41,7 @@ bool Bullet::update()
             }
         }
 
+    // destroy out of screen bullets
     if (y <= 0 || y >= LINES)
         return true;
 

@@ -4,11 +4,10 @@
 #include "drawable.h"
 
 
-constexpr float _enemyspeed = 5;
-constexpr float _playerspeed = 20;
+constexpr float _Enemy_speed = 5;
+constexpr float _Player_speed = 20;
 constexpr int _player_maxhealth = 10;
-constexpr int _enemy_maxhealth = 1;
-
+constexpr int _Enemy_maxhealth = 1;
 
 
 class Bullet;
@@ -51,7 +50,7 @@ public:
     bool isdead = false;
 
     Player(const float y, const float x) :Interactable(_player_maxhealth, y, x,
-    _playerspeed) {}
+    _Player_speed) {}
 
     Bullet shoot();
     void draw(WINDOW* plac) const override
@@ -75,8 +74,8 @@ enum class Enemy_states {
 };
 class Enemy :public Interactable {
 public:
-    Enemy(const float y, const float x) :Interactable(_enemy_maxhealth, y, x,
-    _enemyspeed) {}
+    Enemy(const float y, const float x) :Interactable(_Enemy_maxhealth, y, x,
+    _Enemy_speed) {}
 
     Bullet shoot();
     void draw(WINDOW* plac) const override
