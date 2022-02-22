@@ -22,31 +22,75 @@
 #include "gamemanager.h"
 #include "bullet.h"
 
-// Global variables
+/* ====================GLOBAL VARIABLES==================== */
 PANEL *stdpnl, *pointspnl, *msgpnl;
 WINDOW *pointswin, *menuwin, *msgwin, *descwin;
 MENU* mainmenu;
 std::vector<ITEM*> m_items;
 std::mutex access_curses;
-std::atomic_bool thr_run = false;
-bool menu = false;
+std::atomic_bool thr_run {false};
+bool menu {false};
 
-// Constants
+/* ====================CONSTANTS==================== */
 constexpr std::string_view Help_description {"Why? painful the sixteen \bhow minuter looking nor. Subject but why?\b ten earnest husband imagine *sixteen* brandon. **Are unpleasing occasional celebrated?** motionless unaffected conviction out. \nEvil make to no five they. Stuff at avoid of sense small fully it \nwhose an. Ten scarcely distance moreover handsome age although. As when have find fine or said no mile. He in dispatched in imprudence\n dissimilar be possession unreserved insensible. She evil face fine calm have now. Separate screened he outweigh of distance landlord. Oh acceptance apartments up sympathize astonished delightful. Waiting him new lasting towards. Continuing melancholy especially so to. Me unpleasing impossible in attachment announcing so astonished. What ask leaf may nor upon door. Tended remain my do stairs. Oh smiling amiable am so visited cordial in offices hearted. So feel been kept be at gate. Be september it extensive oh concluded of certainty. In read most gate at body held it ever no. Talking justice welcome message inquiry in started of am me. Led own hearted highest visited lasting sir through compass his. Guest tiled he quick by so these trees am. It announcing alteration at surrounded comparison. Folly words widow one downs few age every seven. If miss part by fact he park just shew. Discovered had get considered projection who favourable. Necessary up knowledge it tolerably. Unwilling departure education is be dashwoods or an. Use off agreeable law unwilling sir deficient curiosity instantly. Easy mind life fact with see has bore ten. Parish any chatty can elinor direct for former. Up as meant widow equal an share least. Allow miles wound place the leave had. To sitting subject no improve studied limited. Ye indulgence unreserved connection alteration appearance my an astonished. Up as seen sent make he they of. Her raising and himself pasture believe females. Fancy she stuff after aware merit small his. Charmed esteems luckily age out. Stronger unpacked felicity to of mistaken. Fanny at wrong table ye in. Be on easily cannot innate in lasted months on. Differed and and felicity steepest mrs age outweigh. Opinions learning likewise daughter now age outweigh. Raptures stanhill my greatest mistaken or exercise he on although. Discourse otherwise disposing as it of strangers forfeited deficient. Arrival entered an if drawing request. How daughters not promotion few knowledge contented. Yet winter law behind number stairs garret excuse. Minuter we natural conduct gravity if pointed oh no. Am immediate unwilling of attempted admitting disposing it. Handsome opinions on am at it ladyship. Certainly elsewhere my do allowance at. The address farther six hearted hundred towards husband. Are securing off occasion remember daughter replying. Held that feel his see own yet. Strangers ye to he sometimes propriety in. She right plate seven has. Bed who perceive judgment did marianne. Paid was hill sir high. For him precaution any advantages dissimilar comparison few terminated projecting. Prevailed discovery immediate objection of ye at. Repair summer one winter living feebly pretty his. In so sense am known these since. Shortly respect ask cousins brought add tedious nay. Expect relied do we genius is. On as around spirit of hearts genius. Is raptures daughter branched laughter peculiar in settling. So by colonel hearted ferrars. Draw from upon here gone add one. He in sportsman household otherwise it perceived instantly. Is inquiry no he several excited am. Called though excuse length ye needed it he having. Whatever throwing we on resolved entrance together graceful. Mrs assured add private married removed believe did she."};
-constexpr int ESC = 27;
+constexpr short ESC {27};
 
-constexpr int POINTSWIN_NLINES = 4;
-constexpr int POINTSWIN_NCOLS = 0;
-constexpr int POINTSWIN_BEGINY = 0;
-#define POINTSWIN_BEGINX COLS-10
+// windows
+constexpr short M_POINTSWIN_NLINES {4};
+constexpr short M_POINTSWIN_NCOLS {0};
+constexpr short M_POINTSWIN_BEGY {0};
+#define M_POINTSWIN_BEGX COLS-10
 
+constexpr short M_MSGWIN_NLINES {0};
+constexpr short M_MSGWIN_NCOLS {0};
+#define M_MSGWIN_BEGY LINES-4
+#define M_MSGWIN_BEGX COLS-10
+
+constexpr short M_MENUWIN_NLINES {12};
+constexpr short M_MENUWIN_NCOLS {50};
+#define M_MENUWIN_BEGY (LINES-M_MENUWIN_NLINES)/2
+#define M_MENUWIN_BEGX (COLS-M_MENUWIN_NCOLS)/2
+
+// these positions are relative to the menu window
+constexpr short M_MENUSUBWIN_NLINES {M_MENUWIN_NLINES - 2};
+constexpr short M_MENUSUBWIN_NCOLS {20};
+constexpr short M_MENUSUBWIN_BEGY {2};
+constexpr short M_MENUSUBWIN_BEGX {4};
+
+constexpr short M_DESCWIN_NLINES {M_MENUWIN_NLINES - 2};
+constexpr short M_DESCWIN_NCOLS {30};
+constexpr short M_DESCWIN_BEGY {1};
+constexpr short M_DESCWIN_BEGX {M_MENUWIN_NCOLS - M_DESCWIN_NCOLS - 1};
+
+constexpr short M_MENUFORMAT_ROWS {M_MENUSUBWIN_NLINES - 2};
+constexpr short M_MENUFORMAT_COLS {1};
+
+// colors
+constexpr short M_GREENCOLOR_PAIR {1};
+constexpr short M_REDCOLOR_PAIR {2};
+constexpr short M_WHITECOLOR_PAIR {3};
+constexpr short M_BLUECOLOR_PAIR {4};
+
+#define M_MENU_CURSOR "* "
+
+constexpr int M_MENUOPTS_OFF {O_SHOWDESC}; /* options to turn off from menu */
+
+const std::vector<std::vector<const char*>> M_ITEMS_TXT {
+    {"Resume", "Continue where you left"},
+    {"New Game", "Start a fresh game"},
+    {"Help", "How to play"},
+    {"Exit", nullptr} // no description
+};
+
+
+// startup options
 struct Start_Opts {
     bool nomenu = false;
     bool nodamage = false;
 };
 
 
-void init(const Start_Opts&);    /* ncurses init */
+void init(const Start_Opts&);    /* initialize objects */
 void input();   /* get user input */
 void update();  /* update (calculate) new positions */
 void draw();    /* update screen */
@@ -106,44 +150,37 @@ void init(const Start_Opts& opts)
     keypad(stdscr, TRUE);
 
     // colors
-    init_pair(1, COLOR_GREEN, 0);
-    init_pair(2, COLOR_RED, 0);
-    init_pair(3, COLOR_WHITE, 0);
-    init_pair(4, COLOR_BLUE, 0);
+    init_pair(M_GREENCOLOR_PAIR, COLOR_GREEN, 0);
+    init_pair(M_REDCOLOR_PAIR, COLOR_RED, 0);
+    init_pair(M_WHITECOLOR_PAIR, COLOR_WHITE, 0);
+    init_pair(M_BLUECOLOR_PAIR, COLOR_BLUE, 0);
 
     // windows
-    pointswin = newwin(POINTSWIN_NLINES, POINTSWIN_NCOLS, POINTSWIN_BEGINY, POINTSWIN_BEGINX);
-    msgwin = newwin(0, 0, LINES-4, COLS-10);
-    int m_nlines = 12, m_ncols = 50, m_begy = (LINES-m_nlines)/2,
-     m_begx = (COLS-m_ncols)/2;
-    menuwin = newwin(m_nlines, m_ncols, m_begy, m_begx);
+    pointswin = newwin(M_POINTSWIN_NLINES, M_POINTSWIN_NCOLS, M_POINTSWIN_BEGY, M_POINTSWIN_BEGX);
+    msgwin = newwin(M_MSGWIN_NLINES, M_MSGWIN_NCOLS, M_MSGWIN_BEGY, M_MSGWIN_BEGX);
+    menuwin = newwin(M_MENUWIN_NLINES, M_MENUWIN_NCOLS, M_MENUWIN_BEGY, M_MENUWIN_BEGX);
 
-    keypad(menuwin, TRUE);
+    descwin = derwin(menuwin, M_DESCWIN_NLINES, M_DESCWIN_NCOLS, M_DESCWIN_BEGY, M_DESCWIN_BEGX);
 
-    int m_dernlines = m_nlines-2, m_derncols = 20, m_derbegy = 2, m_derbegx = 4;
-    int m_descols = 30;
-    descwin = derwin(menuwin, m_dernlines, m_descols, 1, m_ncols-m_descols-1);
+    // menu items
+    m_items.reserve(M_ITEMS_TXT.size() + 1); // including nullptr
+    for (const auto& _items: M_ITEMS_TXT) {
+        m_items.push_back(new_item(_items[0], _items[1])); // item_name, description
+    }
+    m_items.push_back(nullptr); // last item has to be null (see menu documentation)
 
-    // items
-    m_items.reserve(5);
-    m_items.push_back(new_item("Resume", "Continue where you left"));
-    m_items.push_back(new_item("New Game", "Start a fresh game"));
-    m_items.push_back(new_item("Help", "How to play"));
-    m_items.push_back(new_item("Exit", nullptr));
-    m_items.push_back(nullptr);
-
-    // if (!save)
     item_opts_off(m_items[0], O_SELECTABLE);
+    keypad(menuwin, TRUE);
 
     mainmenu = new_menu(m_items.data());
 
     // menu customizations
     set_menu_win(mainmenu, menuwin);
-    set_menu_sub(mainmenu, derwin(menuwin, m_dernlines, m_derncols, m_derbegy,
-        m_derbegx));
-    set_menu_format(mainmenu, m_dernlines-2, 1);
-    menu_opts_off(mainmenu, O_SHOWDESC);
-    set_menu_mark(mainmenu, "* ");
+    set_menu_sub(mainmenu, derwin(menuwin, M_MENUSUBWIN_NLINES, M_MENUSUBWIN_NCOLS,
+    M_MENUSUBWIN_BEGY, M_MENUSUBWIN_BEGX));
+    set_menu_format(mainmenu, M_MENUFORMAT_ROWS, M_MENUFORMAT_COLS);
+    menu_opts_off(mainmenu, M_MENUOPTS_OFF);
+    set_menu_mark(mainmenu, M_MENU_CURSOR);
 
     stdpnl = new_panel(stdscr);
     pointspnl = new_panel(pointswin);
