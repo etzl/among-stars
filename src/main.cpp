@@ -21,14 +21,16 @@
 #include "objects.h"
 #include "gamemanager.h"
 #include "bullet.h"
+#include "stats.h"
 
 /* ====================GLOBAL VARIABLES==================== */
-PANEL *stdpnl, *pointspnl, *msgpnl;
-WINDOW *pointswin, *menuwin, *msgwin, *descwin;
+PANEL *stdpnl, *msgpnl;
+WINDOW *menuwin, *msgwin, *descwin;
 MENU* mainmenu;
+Stats m_stats;
 std::vector<ITEM*> m_items;
-std::mutex access_curses;
-std::atomic_bool thr_run {false};
+std::mutex m_access_curses;
+std::atomic_bool m_thr_run {false};
 bool menu {false};
 
 /* ====================CONSTANTS==================== */
@@ -82,7 +84,6 @@ const std::vector<std::vector<const char*>> M_ITEMS_TXT {
     {"Exit", nullptr} // no description
 };
 
-
 // startup options
 struct Start_Opts {
     bool nomenu = false;
@@ -131,7 +132,7 @@ int main(int argc, char* argv[])
 
         auto tp2 = std::chrono::steady_clock::now();
         Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
-        if (menu) { // dont include the time we've spent in the menu, also give player 1 frame to think about
+        if (menu) { // dont include the time we've spent in the menu
             menu = false;
             Game_manager::deltatime = 0;
         }
@@ -156,7 +157,7 @@ void init(const Start_Opts& opts)
     init_pair(M_BLUECOLOR_PAIR, COLOR_BLUE, 0);
 
     // windows
-    pointswin = newwin(M_POINTSWIN_NLINES, M_POINTSWIN_NCOLS, M_POINTSWIN_BEGY, M_POINTSWIN_BEGX);
+    m_stats = newwin(M_POINTSWIN_NLINES, M_POINTSWIN_NCOLS, M_POINTSWIN_BEGY, M_POINTSWIN_BEGX);
     msgwin = newwin(M_MSGWIN_NLINES, M_MSGWIN_NCOLS, M_MSGWIN_BEGY, M_MSGWIN_BEGX);
     menuwin = newwin(M_MENUWIN_NLINES, M_MENUWIN_NCOLS, M_MENUWIN_BEGY, M_MENUWIN_BEGX);
 
@@ -183,7 +184,6 @@ void init(const Start_Opts& opts)
     set_menu_mark(mainmenu, M_MENU_CURSOR);
 
     stdpnl = new_panel(stdscr);
-    pointspnl = new_panel(pointswin);
     msgpnl = new_panel(msgwin);
 
     update_panels();
@@ -208,11 +208,9 @@ void finish()
     for (auto& it: m_items)
         free_item(it);
     // delete associate panels
-    del_panel(pointspnl);
     del_panel(stdpnl);
     del_panel(msgpnl);
     // delete windows
-    delwin(pointswin);
     delwin(menuwin);
     delwin(msgwin);
     delwin(descwin);
@@ -249,7 +247,7 @@ void input()
             break;
         case 'q':   // a shortcut for quiting
             finish();
-            [[fallthrough]];
+            break;
         case ESC:
             showmenu();
             break;
@@ -261,7 +259,7 @@ void input()
 
 void draw()
 {
-    std::scoped_lock lock {access_curses};
+    std::scoped_lock lock {m_access_curses};
 
     erase();
 
@@ -274,7 +272,7 @@ void draw()
         drw);
 
     // show player stats
-    stats();
+    m_stats.draw();
 
     update_panels();
     doupdate();
@@ -290,24 +288,10 @@ void design_w(WINDOW* win, const char* title)
     wrefresh(win);
 }
 
-void stats()
-{
-    werase(pointswin);
-    box(pointswin, 0, 0);
-
-    std::ostringstream _health;
-    _health << "HP:  " << Game_manager::player.gethealth();
-    mvwaddstr(pointswin, 1, 1, _health.str().c_str());
-
-    std::ostringstream _points;
-    _points << "KP:  " << Game_manager::player_points;
-    mvwaddstr(pointswin, 2, 1, _points.str().c_str());
-}
-
 /* This function used only by showmessage() */
 void task_showmessage(const std::string_view msg)
 {
-    std::unique_lock lck {access_curses};
+    std::unique_lock lck {m_access_curses};
 
     show_panel(msgpnl);
     text_buffer(msgwin, msg.data());
@@ -323,14 +307,14 @@ void task_showmessage(const std::string_view msg)
     update_panels();
     doupdate();
 
-    thr_run = false;
+    m_thr_run = false;
 }
 void showmessage(std::string_view msg)
 {
-    if (thr_run)
+    if (m_thr_run)
         return;
 
-    thr_run = true;
+    m_thr_run = true;
     std::thread task {task_showmessage, msg};
     task.detach();
 }
@@ -343,7 +327,7 @@ void update()
     Game_manager::update();
 
     if (Game_manager::player.isdead) {
-        stats(); // update screen before ending the game
+        m_stats.draw();
         update_panels();
         doupdate();
         gameover();
@@ -383,7 +367,7 @@ void gameover()
     mvwaddstr(menuwin, maxy/2, (maxx-std::strlen(mesg))/2, mesg);
     refresh();
     wrefresh(menuwin);
-    std::this_thread::sleep_for(GAMEOVER_TIMER);
+    std::this_thread::sleep_for(_Gameover_timer);
 
     werase(menuwin);
     wbkgd(menuwin, 0);

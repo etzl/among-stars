@@ -6,11 +6,22 @@
 
 constexpr float _Enemy_speed = 5;
 constexpr float _Player_speed = 20;
-constexpr int _player_maxhealth = 10;
+constexpr int _Player_maxhealth = 10;
 constexpr int _Enemy_maxhealth = 1;
 
 
 class Bullet;
+
+enum class Enemy_states {
+    idle, high, up_left, up_right, down_left, down_right
+};
+
+// startup options
+struct Start_Opts {
+    bool nomenu = false;
+    bool nodamage = false;
+};
+
 
 
 class Interactable :public Drawable_obj {
@@ -23,9 +34,9 @@ public:
     {
         health -= damage;
     }
-    int gethealth() 
+    int gethealth()
     {
-        return health; 
+        return health;
     }
 
     bool operator==(const Interactable& cmp)
@@ -49,7 +60,7 @@ class Player : public Interactable {
 public:
     bool isdead = false;
 
-    Player(const float y, const float x) :Interactable(_player_maxhealth, y, x,
+    Player(const float y, const float x) :Interactable(_Player_maxhealth, y, x,
     _Player_speed) {}
 
     Bullet shoot();
@@ -69,31 +80,33 @@ public:
 };
 
 
-enum class Enemy_states {
-    idle, high, up_left, up_right, down_left, down_right
-};
 class Enemy :public Interactable {
 public:
     Enemy(const float y, const float x) :Interactable(_Enemy_maxhealth, y, x,
     _Enemy_speed) {}
 
     Bullet shoot();
+
     void draw(WINDOW* plac) const override
     {
         mvwaddstr(plac, y, x-2, R"(>||<)");
     }
-    size_t size() const override { return 4; }
+    size_t size() const override
+    {
+        return 4;
+    }
     bool inrange(float chkx) const override
     {
         return ((x-2) <= chkx) && (chkx <= x+1);
     }
-    Enemy_states& mode() { return state; }
+    Enemy_states& mode()
+    {
+        return state;
+    }
 
 private:
     Enemy_states state = Enemy_states::idle;
 };
-
-
 
 // struct Window_prop {
 //     constexpr Window_prop(int y, int x, int l, int c) :y{y}, x{x}, lines{l},
