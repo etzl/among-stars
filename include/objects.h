@@ -16,14 +16,6 @@ enum class Enemy_states {
     idle, high, up_left, up_right, down_left, down_right
 };
 
-// startup options
-struct Start_Opts {
-    bool nomenu = false;
-    bool nodamage = false;
-};
-
-
-
 class Interactable :public Drawable_obj {
 public:
     Interactable(const int h, const float y, const float x, const float speed):
