@@ -15,7 +15,9 @@ public:
     direction{d}
     {}
     bool update();
+
     size_t size() const override { return 1; }
+
     void draw(WINDOW* plac) const override  // should later be changed to perform on stdscr
     {
         mvwaddch(plac, y, x, ACS_BULLET);

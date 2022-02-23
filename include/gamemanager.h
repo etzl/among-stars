@@ -22,7 +22,7 @@ constexpr float _Allowed_distance_from_corner = 6;   /* The distance from right 
 constexpr std::chrono::seconds _Showmessage_timer(1);
 constexpr std::chrono::seconds _Shoot_interval(3);
 constexpr std::chrono::milliseconds _timeoutms(50);
-constexpr std::chrono::seconds GAMEOVER_TIMER(3);
+constexpr std::chrono::seconds _Gameover_timer(3);
 
 #define _Player_initial_x COLS/2
 #define _Player_initial_y (LINES/2)+4

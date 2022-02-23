@@ -15,8 +15,10 @@ public:
      speed{speed}
     {}
 
+    /* Draw on any window */
     virtual void draw(WINDOW*) const = 0;
-    virtual size_t size() const =0; /* Amount of columns occupied by the shape */
+    /* Amount of columns occupied by the shape */
+    virtual size_t size() const =0;
 
     virtual float getx() const { return x; }
     virtual float gety() const { return y; }
