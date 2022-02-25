@@ -1,4 +1,5 @@
 .vscode/
 .history/
 src/obj/
+*.o
 among_stars
