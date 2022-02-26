@@ -1,14 +1,8 @@
 # Among Stars - Inspired by old-school arcade games and my room's persian carpet
 
-![carpet](docs/carpet.jpg)
+<img src="docs/carpet.jpg" width=50% height=50% alt="carpet">
 
 If you look closely you can find the enemies.
-
-## Contributing
-
-Don't get confused with all branches. They're just how the project *could* continue.
-
-But there's *'curses-class'* branch which is a work in progress, and what I plan to do is to encapsulate all the functions that have something to do with `ncurses` in a neat object (class).
 
 ## How to play
 
@@ -29,3 +23,9 @@ The "built-in editor" is used to show useful information about the game. It proc
 * \*\*\* - ***bold and italic***
 
 Note that combining of bolding and italic between two pairs is not supported (e.g. \*testing \*\*with\*\* combination\*)
+
+## Contributing
+
+Don't get confused with all branches. They're just how the project *could* continue.
+
+But there's *'curses-class'* branch which is a work in progress, and what I plan to do is to encapsulate all the functions that have something to do with `ncurses` in a neat object (class).
