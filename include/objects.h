@@ -4,10 +4,10 @@
 #include "drawable.h"
 
 
-constexpr float _Enemy_speed = 5;
-constexpr float _Player_speed = 20;
-constexpr int _Player_maxhealth = 10;
-constexpr int _Enemy_maxhealth = 1;
+constexpr float _Enemy_speed {5};
+constexpr float _Player_speed {20};
+constexpr int _Player_maxhealth {10};
+constexpr int _Enemy_maxhealth {1};
 
 
 class Bullet;
@@ -60,7 +60,10 @@ public:
     {
         mvwaddstr(plac, y, x-1, R"(/_\)");
     }
-    size_t size() const override { return 3; }
+    size_t size() const override
+    {
+        return 3;
+    }
     bool inrange(float chkx) const override
     {
         return (chkx >= x-1) && (chkx <= x+1);
