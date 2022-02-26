@@ -1,6 +1,6 @@
 # Among Stars - Inspired by old-school arcade games and my room's persian carpet
 
-<img src="docs/carpet.jpg" width=50% height=50% alt="carpet">
+<img src="docs/carpet.jpg" width=75% height=75% alt="carpet">
 
 If you look closely you can find the enemies.
 
