@@ -9,7 +9,8 @@ If you look closely you can find the enemies.
 ### Command Line Arguments
 
 `--no-menu` Go directly to the game (without showing menu)
-`--no-damage`   Die hard - cheat (technically it sets the player health to maximum possible value see [here](https://en.cppreference.com/w/cpp/types/numeric_limits/max))
+
+`--no-damage`   Die hard - sets the player health to [maximum possible value](https://en.cppreference.com/w/cpp/types/numeric_limits/max)
 
 ## Technical Details
 
