@@ -16,7 +16,7 @@
 #include <string_view>
 #include <cmath>
 #include <cstdio>
-#include <climits>
+#include <limits>
 
 #include "objects.h"
 #include "gamemanager.h"
@@ -195,7 +195,7 @@ void init(const Start_Opts& opts)
     if (!opts.nomenu)
         showmenu();
     if (opts.nodamage)
-        Game_manager::player.health_cheat() = INT_MAX;
+        Game_manager::player.health_cheat() = std::numeric_limits<int>::max();
 #endif
 
     item_opts_on(m_items[0], O_SELECTABLE);
