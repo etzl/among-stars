@@ -39,6 +39,10 @@ After that you only need to compile the program with:
 
 then you can run the executable with `make run` or `./among_stars`
 
+## Project's Details
+
+You can look through [wikis](https://github.com/etzl/among-stars/wiki) for technical details, and more detailed description, which is a work in progress.
+
 ## Contributing
 
 Don't get confused with all branches. They're just how the project *could* continue.
