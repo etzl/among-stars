@@ -6,9 +6,9 @@ If you look closely you can find the enemies.
 
 ## How to play
 
-You can move around and submit/shoot with `arrow keys` and `enter` respectively.
+You can move around and submit/shoot with `<ARROW_KEYS>` and `<ENTER>` respectively.
 
-There's also a `Help` button in the menu which explains the game.
+There's also a **Help** button in the menu which explains the game.
 
 ### Command Line Arguments
 
