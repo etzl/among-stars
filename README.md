@@ -36,8 +36,8 @@ There's tutorials on the internet on how to do it. On Debian (bullseye) you need
 Then just run:
 
 ```bash
-$ make
-$ make run or ./among_stars
+make
+make run or ./among_stars
 ```
 
 ## Project's Details
