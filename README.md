@@ -33,11 +33,12 @@ There's no need to install the game you can just compile and play it locally, ju
 
 There's tutorials on the internet on how to do it. On Debian (bullseye) you need `libncurses-dev`, `libncurses6`. This is mostly the same on other Debian derivatives like Ubuntu but let me know if there's anything different.
 
-After that you only need to compile the program with:
+Then just run:
 
-`make`
-
-then you can run the executable with `make run` or `./among_stars`
+```bash
+make
+make run or ./among_stars
+```
 
 ## Project's Details
 
