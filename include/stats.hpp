@@ -1,10 +1,10 @@
-#ifndef STATS_H
-#define STATS_H
+#ifndef STATS_HPP
+#define STATS_HPP
 
 
 #include <string>
-#include "drawable.h"
-#include "gamemanager.h"
+#include "drawable.hpp"
+#include "gamemanager.hpp"
 
 
 constexpr short _Health_begy {1};
@@ -74,4 +74,4 @@ class Stats {
         PANEL* panel;
 };
 
-#endif
+#endif  // STATS_HPP_

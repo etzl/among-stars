@@ -14,10 +14,10 @@
 #include <cmath>
 #include <limits>
 
-#include "objects.h"
-#include "gamemanager.h"
-#include "bullet.h"
-#include "stats.h"
+#include "objects.hpp"
+#include "gamemanager.hpp"
+#include "bullet.hpp"
+#include "stats.hpp"
 
 /* ====================CONSTANTS==================== */
 constexpr std::string_view Help_description {"Welcome to the ***Among Stars***.\nCheckout the latest version of the game and technical details on github: https://github.com/etzl/among-stars\nMove up and down in this window using <ARROW_UP> and <ARROW_DOWN> respectively, you can quit this help window anytime with <Q>. The goal of the game is to destroy as many ships as possible before you die. The number of destroyed ships are shown on the right corner of the screen as *KP* and the player's current health is shown as *HP*. As you might know, you can move the player with <ARROW_KEYS> or <W>, <A>, <S>, <D> and shoot with **either** <ENTER> or <SPACE>. You can pause the game anytime when playing, the *Resume* item will be enabled so you can continue playing."};
@@ -405,13 +405,16 @@ void showmenu()
                     if (iname == "Exit")
                         finish();
                     else if (iname == "New Game") {
-                        if (item_opts(m_items[0]) & O_SELECTABLE) {
+                        if (item_opts(cur_item) & O_SELECTABLE) {
                             Game_manager::restart();
+                            ch = 27;
                         }
-                        ch = 27;
                     }
-                    else if (iname == "Resume")
-                        ch = 27;
+                    else if (iname == "Resume") {
+                        if (item_opts(cur_item) & O_SELECTABLE) {
+                            ch = 27;
+                        }
+                    }
                     else if (iname == "Help") {
                         show_help();
                     }

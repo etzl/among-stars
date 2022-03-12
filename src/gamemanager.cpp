@@ -1,9 +1,6 @@
-#ifndef GAMEMANAGER_CPP
-#define GAMEMANAGER_CPP
-
-#include "gamemanager.h"
-#include "objects.h"
-#include "bullet.h"
+#include "gamemanager.hpp"
+#include "objects.hpp"
+#include "bullet.hpp"
 
 #include <algorithm>
 #include <random>
@@ -193,8 +190,7 @@ void Game_manager::update()
 
 void Game_manager::restart()
 {
-    player = {static_cast<float>(_Player_initial_y),
-        static_cast<float>(_Player_initial_x)};
+    player = {_Player_initial_y, _Player_initial_x};
     player_points = 0;
     enemies.clear();
     bullets.clear();
@@ -206,5 +202,3 @@ std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
 int Game_manager::player_points = 0;
 float Game_manager::deltatime = std::chrono::duration<float>(_timeoutms).count(); // makes sense (better than 0) for the first frame
-
-#endif
