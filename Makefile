@@ -13,7 +13,7 @@ TARGET := among_stars
 #############################
 
 # Needed files
-DEP := $(shell find $(INCDIR) -type f -name *.h)
+DEP := $(shell find $(INCDIR) -type f -name *.hpp)
 SRC := $(shell find $(SRCDIR) -type f -name *.cpp)
 OBJ := $(patsubst $(SRCDIR)/%, $(OBJDIR)/%, $(SRC:.cpp=.o))
 

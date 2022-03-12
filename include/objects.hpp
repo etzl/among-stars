@@ -6,7 +6,7 @@
 
 constexpr float _Enemy_speed {5};
 constexpr float _Player_speed {20};
-constexpr int _Player_maxhealth {10};
+constexpr int _Player_maxhealth {2};
 constexpr int _Enemy_maxhealth {1};
 
 

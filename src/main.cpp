@@ -405,13 +405,16 @@ void showmenu()
                     if (iname == "Exit")
                         finish();
                     else if (iname == "New Game") {
-                        if (item_opts(m_items[0]) & O_SELECTABLE) {
+                        if (item_opts(cur_item) & O_SELECTABLE) {
                             Game_manager::restart();
+                            ch = 27;
                         }
-                        ch = 27;
                     }
-                    else if (iname == "Resume")
-                        ch = 27;
+                    else if (iname == "Resume") {
+                        if (item_opts(cur_item) & O_SELECTABLE) {
+                            ch = 27;
+                        }
+                    }
                     else if (iname == "Help") {
                         show_help();
                     }
