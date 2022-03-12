@@ -1,5 +1,5 @@
-#ifndef DRAWABLE_H
-#define DRAWABLE_H
+#ifndef DRAWABLE_HP_
+#define DRAWABLE_HP_
 
 
 
@@ -44,4 +44,4 @@ protected:
     Dir moved;
 };
 
-#endif // DRAWABLE_H
+#endif // DRAWABLE_HP_

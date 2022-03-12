@@ -1,8 +1,8 @@
-#ifndef BULLET_H
-#define BULLET_H
+#ifndef BULLET_HP_
+#define BULLET_HP_
 
 
-#include "drawable.h"
+#include "drawable.hpp"
 
 
 constexpr float _bulletspeed = 21;
@@ -26,4 +26,4 @@ private:
     Dir direction = Dir::none;
 };
 
-#endif // BULLET_H
+#endif // BULLET_HP_

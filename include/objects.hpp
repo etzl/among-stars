@@ -1,7 +1,7 @@
-#ifndef OBJECTS_H
-#define OBJECTS_H
+#ifndef OBJECTS_HP_
+#define OBJECTS_HP_
 
-#include "drawable.h"
+#include "drawable.hpp"
 
 
 constexpr float _Enemy_speed {5};
@@ -47,11 +47,8 @@ protected:
     int health;
 };
 
-
 class Player : public Interactable {
 public:
-    bool isdead = false;
-
     Player(const float y, const float x) :Interactable(_Player_maxhealth, y, x,
     _Player_speed) {}
 
@@ -72,6 +69,8 @@ public:
     {
         return health;
     }
+
+    bool isdead = false;
 };
 
 
@@ -109,4 +108,4 @@ private:
 //     int y, x, lines, cols;
 // };
 
-#endif // OBJECTS_H
+#endif // OBJECTS_HPP_

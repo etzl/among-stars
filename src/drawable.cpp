@@ -1,5 +1,5 @@
-#include "drawable.h"
-#include "gamemanager.h"
+#include "drawable.hpp"
+#include "gamemanager.hpp"
 
 void Drawable_obj::move(const Dir dir)
 {

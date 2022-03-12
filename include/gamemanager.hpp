@@ -1,11 +1,11 @@
-#ifndef GAME_MANAGER_H
-#define GAME_MANAGER_H
+#ifndef GAME_MANAGER_HP_
+#define GAME_MANAGER_HP_
 
 
 #include <vector>
 #include <chrono>
 
-#include "objects.h"
+#include "objects.hpp"
 
 
 constexpr int _Max_enemy_per_row {4};   /* Maximum allowed enemies while generating a new line of enemies */
@@ -45,4 +45,4 @@ public:
 };
 
 
-#endif  // GAME_MANAGER_H
+#endif  // GAME_MANAGER_HP_

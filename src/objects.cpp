@@ -1,5 +1,5 @@
-#include "objects.h"
-#include "bullet.h"
+#include "objects.hpp"
+#include "bullet.hpp"
 
 
 Bullet Player::shoot()
