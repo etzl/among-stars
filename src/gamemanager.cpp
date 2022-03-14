@@ -51,10 +51,10 @@ void c_highmode(Enemy& chk)
 void Game_manager::generate_enemies()
 {
     static Rand count_rand {_Min_enemy_per_row, _Max_enemy_per_row};
-    static Rand x_rand{2, COLS-3}; // these spaces will be occupied by the shape
+    static Rand x_rand{_Enemy_first_allowed_column, _Enemy_last_allowed_column}; // these spaces will be occupied by the shape
     constexpr int y = 0;
 
-    if (enemies.size() / _Enemy_maximum_generate != 0)
+    if (enemies.size() >= _Enemy_maximum_generate)
         return;
 
     const int max_generate = count_rand();

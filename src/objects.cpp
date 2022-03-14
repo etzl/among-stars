@@ -9,5 +9,5 @@ Bullet Player::shoot()
 
 Bullet Enemy::shoot()
 {
-    return Bullet(y, x, Dir::down);
+    return {y, x, Dir::down};
 }

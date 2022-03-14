@@ -26,22 +26,42 @@ constexpr std::chrono::seconds _Gameover_timer {3};
 
 #define _Player_initial_x COLS/2
 #define _Player_initial_y (LINES/2)+4
+#define _Enemy_first_allowed_column 2
+#define _Enemy_last_allowed_column COLS-3
 
 
 class Game_manager {
-public:
-    static int player_points;
-    static std::vector<Enemy> enemies;
-    static std::vector<Bullet> bullets;
-    static Player player;
-    static float deltatime;
+    public:
+        /** Generates new enemies based on the algorithm
+         * \return void
+         */
+        static void generate_enemies();
 
+        /** Move enemies based on the algorithm
+         * \return void
+         */
+        static void move_enemies();
 
-    static void generate_enemies();
-    static void move_enemies();
-    static void update(); /* update frame */
-    static void shoot(); /* enemy shoot logic */
-    static void restart(); /* restart variables to their initial state */
+        /** Update frame - logically
+         * \return void
+         */
+        static void update();
+
+        /** Shoot a bullet off each enemy objects on a time interval
+         * \return void
+         */
+        static void shoot();
+
+        /** Restart the game
+         * \return void
+         */
+        static void restart();
+
+        static int player_points;
+        static std::vector<Enemy> enemies;
+        static std::vector<Bullet> bullets;
+        static Player player;
+        static float deltatime;
 };
 
 
