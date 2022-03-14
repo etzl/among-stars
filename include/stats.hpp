@@ -3,6 +3,7 @@
 
 
 #include <string>
+
 #include "drawable.hpp"
 #include "gamemanager.hpp"
 
@@ -15,6 +16,8 @@ constexpr short _Points_begx {1};
 class Stats {
     public:
         Stats() =default;
+        Stats(const Stats&) =delete;
+        Stats& operator=(const Stats&) =delete;
 
         Stats(WINDOW* _pointswin)
         {
@@ -25,7 +28,6 @@ class Stats {
         Stats(Stats&& oth) :win{oth.win}, panel{oth.panel}
         {}
 
-        Stats(const Stats&) =delete;
 
         Stats& operator=(WINDOW* _pointswin)
         {
@@ -47,8 +49,6 @@ class Stats {
 
             return *this;
         }
-
-        Stats& operator=(const Stats&) =delete;
 
         void draw()
         {

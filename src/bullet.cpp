@@ -6,7 +6,6 @@
 constexpr int _bulletdamage = 1;
 
 
-/* returning true deletes the bullet from game manager list */
 bool Bullet::update()
 {
     move(direction);

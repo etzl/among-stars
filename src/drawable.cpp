@@ -18,5 +18,7 @@ void Drawable_obj::move(const Dir dir)
         case Dir::left:
             x -= speed * Game_manager::deltatime;
             break;
+        default:
+            throw "Can't move to direction Dir::none";
     }
 }
