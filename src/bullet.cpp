@@ -6,7 +6,7 @@
 constexpr int _bulletdamage = 1;
 
 
-bool Bullet::update()
+bool Bullet::UpdatePositions()
 {
     move(direction);
     if (direction == Dir::up) {

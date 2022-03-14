@@ -88,13 +88,13 @@ bool menu {false};
 
 
 void init(const Start_Opts&);    /* initialize objects */
-void input();   /* get user input */
-void update();  /* update (calculate) new positions */
-void draw();    /* update screen */
+void GetUserInput();   /* get user input */
+void UpdatePositions();  /* update (calculate) new positions */
+void UpdateScreen();    /* update screen */
 void showmessage(std::string_view);    /* show a message for specified time */
 void finish();  /* free memory */
 void showmenu();
-void text_buffer(WINDOW*, const char*); /* print characters in a buffer on a window */
+void PrintToWindowBuffer(WINDOW*, const char*); /* print characters in a buffer on a window */
 void gameover(); /* Game over function */
 
 
@@ -121,9 +121,9 @@ int main(int argc, char* argv[])
     while (true) {
         auto tp1 = std::chrono::steady_clock::now();
 
-        input();
-        update();   // logical update
-        draw(); // update frame
+        GetUserInput();
+        UpdatePositions();   // logical update
+        UpdateScreen(); // update frame
 
         auto tp2 = std::chrono::steady_clock::now();
         Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
@@ -213,7 +213,7 @@ void finish()
     exit(0);
 }
 
-void input()
+void GetUserInput()
 {
     int c = getch();
     if (c == ERR)
@@ -252,7 +252,7 @@ void input()
     }
 }
 
-void draw()
+void UpdateScreen()
 {
     std::scoped_lock lock {m_access_curses};
 
@@ -267,7 +267,7 @@ void draw()
         drw);
 
     // show player stats
-    m_stats.draw();
+    m_stats.UpdateScreen();
 
     update_panels();
     doupdate();
@@ -289,7 +289,7 @@ void task_showmessage(const std::string_view msg)
     std::unique_lock lck {m_access_curses};
 
     show_panel(msgpnl);
-    text_buffer(msgwin, msg.data());
+    PrintToWindowBuffer(msgwin, msg.data());
 
     update_panels();
     doupdate();
@@ -314,15 +314,15 @@ void showmessage(std::string_view msg)
     task.detach();
 }
 
-void update()
+void UpdatePositions()
 {
     Game_manager::generate_enemies();
     Game_manager::move_enemies();
     Game_manager::shoot();
-    Game_manager::update();
+    Game_manager::UpdatePositions();
 
     if (Game_manager::player.isdead) {
-        m_stats.draw();
+        m_stats.UpdateScreen();
         update_panels();
         doupdate();
         gameover();
@@ -332,14 +332,14 @@ void update()
 void showmenu_desc()
 {
     design_w(descwin, "Description");
-    text_buffer(descwin, item_description(current_item(mainmenu)));
+    PrintToWindowBuffer(descwin, item_description(current_item(mainmenu)));
 }
 
 void show_help()
 {
     unpost_menu(mainmenu);
     // change background color of the menu here...
-    text_buffer(menuwin, Help_description.data());
+    PrintToWindowBuffer(menuwin, Help_description.data());
     werase(menuwin);
     wbkgd(menuwin, 0);
     // set default color here...
@@ -428,7 +428,7 @@ void showmenu()
     wrefresh(menuwin);
 }
 
-void text_buffer(WINDOW* place, const char* msg)
+void PrintToWindowBuffer(WINDOW* place, const char* msg)
 {
     using namespace std;
 
