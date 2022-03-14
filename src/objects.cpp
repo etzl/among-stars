@@ -1,5 +1,5 @@
-#include "objects.h"
-#include "bullet.h"
+#include "objects.hpp"
+#include "bullet.hpp"
 
 
 Bullet Player::shoot()
@@ -9,5 +9,5 @@ Bullet Player::shoot()
 
 Bullet Enemy::shoot()
 {
-    return Bullet(y, x, Dir::down);
+    return {y, x, Dir::down};
 }

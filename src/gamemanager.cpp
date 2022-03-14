@@ -1,9 +1,6 @@
-#ifndef GAMEMANAGER_CPP
-#define GAMEMANAGER_CPP
-
-#include "gamemanager.h"
-#include "objects.h"
-#include "bullet.h"
+#include "gamemanager.hpp"
+#include "objects.hpp"
+#include "bullet.hpp"
 
 #include <algorithm>
 #include <random>
@@ -54,10 +51,10 @@ void c_highmode(Enemy& chk)
 void Game_manager::generate_enemies()
 {
     static Rand count_rand {_Min_enemy_per_row, _Max_enemy_per_row};
-    static Rand x_rand{2, COLS-3}; // these spaces will be occupied by the shape
+    static Rand x_rand{_Enemy_first_allowed_column, _Enemy_last_allowed_column}; // these spaces will be occupied by the shape
     constexpr int y = 0;
 
-    if (enemies.size() / _Enemy_maximum_generate != 0)
+    if (enemies.size() >= _Enemy_maximum_generate)
         return;
 
     const int max_generate = count_rand();
@@ -193,8 +190,7 @@ void Game_manager::update()
 
 void Game_manager::restart()
 {
-    player = {static_cast<float>(_Player_initial_y),
-        static_cast<float>(_Player_initial_x)};
+    player = {_Player_initial_y, _Player_initial_x};
     player_points = 0;
     enemies.clear();
     bullets.clear();
@@ -206,5 +202,3 @@ std::vector<Enemy> Game_manager::enemies;
 std::vector<Bullet> Game_manager::bullets;
 int Game_manager::player_points = 0;
 float Game_manager::deltatime = std::chrono::duration<float>(_timeoutms).count(); // makes sense (better than 0) for the first frame
-
-#endif

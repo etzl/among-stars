@@ -1,12 +1,11 @@
-#include "bullet.h"
-#include "gamemanager.h"
-#include "objects.h"
+#include "bullet.hpp"
+#include "gamemanager.hpp"
+#include "objects.hpp"
 
 
 constexpr int _bulletdamage = 1;
 
 
-/* returning true deletes the bullet from game manager list */
 bool Bullet::update()
 {
     move(direction);

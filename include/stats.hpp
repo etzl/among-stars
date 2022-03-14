@@ -1,10 +1,11 @@
-#ifndef STATS_H
-#define STATS_H
+#ifndef STATS_HPP
+#define STATS_HPP
 
 
 #include <string>
-#include "drawable.h"
-#include "gamemanager.h"
+
+#include "drawable.hpp"
+#include "gamemanager.hpp"
 
 
 constexpr short _Health_begy {1};
@@ -15,6 +16,8 @@ constexpr short _Points_begx {1};
 class Stats {
     public:
         Stats() =default;
+        Stats(const Stats&) =delete;
+        Stats& operator=(const Stats&) =delete;
 
         Stats(WINDOW* _pointswin)
         {
@@ -25,7 +28,6 @@ class Stats {
         Stats(Stats&& oth) :win{oth.win}, panel{oth.panel}
         {}
 
-        Stats(const Stats&) =delete;
 
         Stats& operator=(WINDOW* _pointswin)
         {
@@ -47,8 +49,6 @@ class Stats {
 
             return *this;
         }
-
-        Stats& operator=(const Stats&) =delete;
 
         void draw()
         {
@@ -74,4 +74,4 @@ class Stats {
         PANEL* panel;
 };
 
-#endif
+#endif  // STATS_HPP_

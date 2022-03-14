@@ -1,5 +1,5 @@
-#include "drawable.h"
-#include "gamemanager.h"
+#include "drawable.hpp"
+#include "gamemanager.hpp"
 
 void Drawable_obj::move(const Dir dir)
 {
@@ -18,5 +18,7 @@ void Drawable_obj::move(const Dir dir)
         case Dir::left:
             x -= speed * Game_manager::deltatime;
             break;
+        default:
+            throw "Can't move to direction Dir::none";
     }
 }
