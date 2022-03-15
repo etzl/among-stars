@@ -17,7 +17,7 @@ cd among-stars
 git checkout -b <branch_name> develop
 ```
 
-After changing some files, you can test your changes and catch any errors by [compiling](/README.md#compiling) the project.  
+After changing some files, you can test your changes and catch any errors by [building](/README.md#compiling) the project.  
 Then commit and push:
 
 ```bash
