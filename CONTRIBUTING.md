@@ -25,4 +25,4 @@ git commit -m 'commit message'
 git push origin <branch_name>
 ```
 
-You can now open a pull request from `<branch_name>` to the `develop` branch. Thanks for you contribution! 🤟
+You can now open a pull request from `<branch_name>` to the `develop` branch. Thanks for your contribution! 🤟
