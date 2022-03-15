@@ -17,10 +17,12 @@ cd among-stars
 git checkout -b <branch_name> develop
 ```
 
-After changing some files, commit and then push your changes:
+After changing some files, you can test your changes and catch any errors by [compiling](/README.md#compiling) the project.  
+Then commit and push:
 
 ```bash
 # made some changes
+make
 git commit -m 'commit message'
 git push origin <branch_name>
 ```
