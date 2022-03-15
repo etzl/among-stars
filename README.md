@@ -1,4 +1,6 @@
-# Among Stars - Inspired by old-school arcade games and my room's persian carpet
+# Among Stars 👾
+
+Inspired by old-school arcade games and my room's persian carpet
 
 <img src="docs/carpet.jpg" width=75% height=75% alt="carpet">
 
