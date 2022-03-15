@@ -19,9 +19,7 @@ There's also a **Help** button in the menu which explains the game.
 
 Player's stats is shown on the top-right corner:
 
-<p align="center">
-    <img src="docs/stats.png">
-</p>
+<img src="docs/stats.png">
 
 Short for 'Health Point' and 'Kill Point'
 
