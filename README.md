@@ -15,13 +15,14 @@ There's also a **Help** button in the menu which explains the game.
 ### Command Line Arguments
 
 `--no-menu` Go directly to the game (without showing menu)  
-`--no-damage`   Die hard - sets the player health to [maximum possible value](https://en.cppreference.com/w/cpp/types/numeric_limits/max)
+`--no-damage`   Die hard - sets the player health to [maximum possible value](https://en.cppreference.com/w/cpp/types/numeric_limits/max)  
+`--help`    Show help and quit
 
 ### Score & Health
 
 Player's stats is shown on the top-right corner:
 
-<img src="docs/stats.png">
+![stats picture](/docs/stats.png)
 
 Short for 'Health Point' and 'Kill Point'
 
