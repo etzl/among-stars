@@ -21,7 +21,7 @@
 
 /* ====================CONSTANTS==================== */
 constexpr std::string_view Help_description {"Welcome to the ***Among Stars***.\nCheckout the latest version of the game and technical details on github: https://github.com/etzl/among-stars\nMove up and down in this window using <ARROW_UP> and <ARROW_DOWN> respectively, you can quit this help window anytime with <Q>. The goal of the game is to destroy as many ships as possible before you die. The number of destroyed ships are shown on the right corner of the screen as *KP* and the player's current health is shown as *HP*. As you might know, you can move the player with <ARROW_KEYS> or <W>, <A>, <S>, <D> and shoot with **either** <ENTER> or <SPACE>. You can pause the game anytime when playing, the *Resume* item will be enabled so you can continue playing."};
-constexpr short ESC {27};
+constexpr short M_ESC {27};
 
 // windows
 constexpr short M_POINTSWIN_NLINES {4};
@@ -85,6 +85,7 @@ std::vector<ITEM*> m_items;
 std::mutex m_access_curses;
 std::atomic_bool m_thr_run {false};
 bool menu {false};
+bool m_quit {false};
 
 
 void init(const Start_Opts&);    /* initialize objects */
@@ -92,7 +93,7 @@ void input();   /* get user input */
 void update();  /* update (calculate) new positions */
 void draw();    /* update screen */
 void showmessage(std::string_view);    /* show a message for specified time */
-void finish();  /* free memory */
+void free_mem();  /* free memory */
 void showmenu();
 void text_buffer(WINDOW*, const char*); /* print characters in a buffer on a window */
 void gameover(); /* Game over function */
@@ -114,11 +115,10 @@ int main(int argc, char* argv[])
     Start_Opts opts; // options
     if (0 < argc)
         checkargs(argc, argv, opts);
-
     init(opts);
 
     // main loop
-    while (true) {
+    while (!m_quit) {
         auto tp1 = std::chrono::steady_clock::now();
 
         input();
@@ -132,6 +132,10 @@ int main(int argc, char* argv[])
             Game_manager::deltatime = 0;
         }
     }
+
+    free_mem();
+    endwin();
+    return 0;
 }
 
 void init(const Start_Opts& opts)
@@ -196,7 +200,8 @@ void init(const Start_Opts& opts)
 
     item_opts_on(m_items[0], O_SELECTABLE);
 }
-void finish()
+
+void free_mem()
 {
     unpost_menu(mainmenu);
     free_menu(mainmenu);
@@ -209,8 +214,6 @@ void finish()
     delwin(menuwin);
     delwin(msgwin);
     delwin(descwin);
-    endwin();
-    exit(0);
 }
 
 void input()
@@ -241,9 +244,9 @@ void input()
             Game_manager::bullets.push_back(Game_manager::player.shoot());
             break;
         case 'q':   // a shortcut for quiting
-            finish();
+            m_quit = true;
             break;
-        case ESC:
+        case M_ESC:
             showmenu();
             break;
         default:
@@ -384,35 +387,42 @@ void showmenu()
     showmenu_desc();
     wrefresh(menuwin);
 
-    int ch = 0;
-    while (ch != 27) {
-        ch = wgetch(menuwin);
+    bool menu_loop = true;
+    while (menu_loop) {
+        int ch = wgetch(menuwin);
         switch (ch) {
             case KEY_DOWN:
+            case 'j':
             case 's':
                 menu_driver(mainmenu, REQ_DOWN_ITEM);
                 showmenu_desc();
                 break;
             case KEY_UP:
+            case 'k':
             case 'w':
                 menu_driver(mainmenu, REQ_UP_ITEM);
                 showmenu_desc();
+                break;
+            case M_ESC:
+                menu_loop = false;
                 break;
             case '\n':
                 ITEM* cur_item = current_item(mainmenu);
                 if (item_opts(cur_item) & O_SELECTABLE) {
                     std::string iname {item_name(cur_item)};
-                    if (iname == "Exit")
-                        finish();
+                    if (iname == "Exit") {
+                        m_quit = true;
+                        menu_loop = false;
+                    }
                     else if (iname == "New Game") {
                         if (item_opts(cur_item) & O_SELECTABLE) {
                             Game_manager::restart();
-                            ch = 27;
+                            menu_loop = false;
                         }
                     }
                     else if (iname == "Resume") {
                         if (item_opts(cur_item) & O_SELECTABLE) {
-                            ch = 27;
+                            menu_loop = false;
                         }
                     }
                     else if (iname == "Help") {
