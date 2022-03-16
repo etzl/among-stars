@@ -22,7 +22,7 @@ class Bullet :public Drawable_obj {
         /** Move bullet through frame and detect collisions
          * \return a boolean indicating collision
          */
-        bool update();
+        bool UpdatePositions();
 
         /** Vertical size of the bullet
          * \return A non-negative number indicating lines
