@@ -13,6 +13,7 @@
 #include <string_view>
 #include <cmath>
 #include <limits>
+#include <utility>
 
 #include "objects.hpp"
 #include "gamemanager.hpp"
@@ -100,21 +101,23 @@ void gameover(); /* Game over function */
 
 
 // user can turn options on/off with command line arguments
-void checkargs(int count, char* argv[], Start_Opts& op)
+Start_Opts checkargs(int count, char* argv[])
 {
+    Start_Opts op;
     for (int i=0; i!=count; ++i) {
         if (std::strcmp(argv[i], "--no-menu") == 0)
             op.nomenu = true;
         else if (std::strcmp(argv[i], "--no-damage") == 0)
             op.nodamage = true;
     }
+    return std::move(op);
 }
 
 int main(int argc, char* argv[])
 {
     Start_Opts opts; // options
     if (0 < argc)
-        checkargs(argc, argv, opts);
+        opts = checkargs(argc, argv);
     init(opts);
 
     // main loop
