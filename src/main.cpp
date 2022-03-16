@@ -14,6 +14,7 @@
 #include <cmath>
 #include <limits>
 #include <utility>
+#include <iostream>
 
 #include "objects.hpp"
 #include "gamemanager.hpp"
@@ -71,10 +72,17 @@ const std::vector<std::vector<const char*>> M_ITEMS_TXT {
     {"Exit", nullptr} // no description
 };
 
+const std::vector<std::vector<const char*>> M_CMDLINE_ARGS {
+    {"--no-menu", "Go directly to the game (without showing menu)"},
+    {"--no-damage", " Die hard - sets the player health to maximum possible value"},
+    {"--help", "Show this message and quit"}
+};
+
 // startup options
 struct Start_Opts {
     bool nomenu = false;
     bool nodamage = false;
+    bool help = false;
 };
 
 /* ====================GLOBAL VARIABLES==================== */
@@ -105,12 +113,20 @@ Start_Opts checkargs(int count, char* argv[])
 {
     Start_Opts op;
     for (int i=0; i!=count; ++i) {
-        if (std::strcmp(argv[i], "--no-menu") == 0)
+        if (std::strcmp(argv[i], M_CMDLINE_ARGS[0][0]) == 0) {
             op.nomenu = true;
-        else if (std::strcmp(argv[i], "--no-damage") == 0)
+        }
+        else if (std::strcmp(argv[i], M_CMDLINE_ARGS[1][0]) == 0) {
             op.nodamage = true;
+        }
+        else if (std::strcmp(argv[i], M_CMDLINE_ARGS[2][0]) == 0) {
+            for (const auto& _arg: M_CMDLINE_ARGS) {
+                std::cout << _arg[0] << '\t' << _arg[1] << '\n';
+            }
+            op.help = true;
+        }
     }
-    return std::move(op);
+    return op;
 }
 
 int main(int argc, char* argv[])
@@ -118,26 +134,28 @@ int main(int argc, char* argv[])
     Start_Opts opts; // options
     if (0 < argc)
         opts = checkargs(argc, argv);
-    init(opts);
 
-    // main loop
-    while (!m_quit) {
-        auto tp1 = std::chrono::steady_clock::now();
+    if (!opts.help) {
+        init(opts);
+        // main loop
+        while (!m_quit) {
+            auto tp1 = std::chrono::steady_clock::now();
 
-        input();
-        update();   // logical update
-        draw(); // update frame
+            input();
+            update();   // logical update
+            draw(); // update frame
 
-        auto tp2 = std::chrono::steady_clock::now();
-        Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
-        if (m_menu) { // dont include the time we've spent in the menu
-            m_menu = false;
-            Game_manager::deltatime = 0;
+            auto tp2 = std::chrono::steady_clock::now();
+            Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
+            if (m_menu) { // dont include the time we've spent in the menu
+                m_menu = false;
+                Game_manager::deltatime = 0;
+            }
         }
-    }
 
-    free_mem();
-    endwin();
+        free_mem();
+        endwin();
+    }
     return 0;
 }
 

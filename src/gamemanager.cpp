@@ -144,6 +144,8 @@ void Game_manager::move_enemies()
                         enemy.mode() = Enemy_states{choose_up()};
                 }
                 break;
+            default:
+                break;
         }
     }
 }
