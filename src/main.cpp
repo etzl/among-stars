@@ -13,6 +13,8 @@
 #include <string_view>
 #include <cmath>
 #include <limits>
+#include <utility>
+#include <iostream>
 
 #include "objects.hpp"
 #include "gamemanager.hpp"
@@ -21,7 +23,7 @@
 
 /* ====================CONSTANTS==================== */
 constexpr std::string_view Help_description {"Welcome to the ***Among Stars***.\nCheckout the latest version of the game and technical details on github: https://github.com/etzl/among-stars\nMove up and down in this window using <ARROW_UP> and <ARROW_DOWN> respectively, you can quit this help window anytime with <Q>. The goal of the game is to destroy as many ships as possible before you die. The number of destroyed ships are shown on the right corner of the screen as *KP* and the player's current health is shown as *HP*. As you might know, you can move the player with <ARROW_KEYS> or <W>, <A>, <S>, <D> and shoot with **either** <ENTER> or <SPACE>. You can pause the game anytime when playing, the *Resume* item will be enabled so you can continue playing."};
-constexpr short ESC {27};
+constexpr short M_ESC {27};
 
 // windows
 constexpr short M_POINTSWIN_NLINES {4};
@@ -70,21 +72,29 @@ const std::vector<std::vector<const char*>> M_ITEMS_TXT {
     {"Exit", nullptr} // no description
 };
 
+const std::vector<std::vector<const char*>> M_CMDLINE_ARGS {
+    {"--no-menu", "Go directly to the game (without showing menu)"},
+    {"--no-damage", "Die hard - sets the player health to maximum possible value"},
+    {"--help", "Show this message and quit"}
+};
+
 // startup options
 struct Start_Opts {
     bool nomenu = false;
     bool nodamage = false;
+    bool help = false;
 };
 
 /* ====================GLOBAL VARIABLES==================== */
-PANEL *stdpnl, *msgpnl;
-WINDOW *menuwin, *msgwin, *descwin;
-MENU* mainmenu;
+PANEL *m_stdpnl, *m_msgpnl;
+WINDOW *m_menuwin, *m_msgwin, *m_descwin;
+MENU* m_mainmenu;
 Stats m_stats;
 std::vector<ITEM*> m_items;
 std::mutex m_access_curses;
-std::atomic_bool m_thr_run {false};
-bool menu {false};
+std::atomic_bool m_thread_ran {false};
+bool m_menu {false};
+bool m_quit {false};
 
 
 void init(const Start_Opts&);    /* initialize objects */
@@ -92,46 +102,61 @@ void input();   /* get user input */
 void update();  /* update (calculate) new positions */
 void draw();    /* update screen */
 void showmessage(std::string_view);    /* show a message for specified time */
-void finish();  /* free memory */
+void free_mem();  /* free memory */
 void showmenu();
 void text_buffer(WINDOW*, const char*); /* print characters in a buffer on a window */
 void gameover(); /* Game over function */
 
 
 // user can turn options on/off with command line arguments
-void checkargs(int count, char* argv[], Start_Opts& op)
+Start_Opts checkargs(int count, char* argv[])
 {
+    Start_Opts op;
     for (int i=0; i!=count; ++i) {
-        if (std::strcmp(argv[i], "--no-menu") == 0)
+        if (std::strcmp(argv[i], M_CMDLINE_ARGS[0][0]) == 0) {
             op.nomenu = true;
-        else if (std::strcmp(argv[i], "--no-damage") == 0)
+        }
+        else if (std::strcmp(argv[i], M_CMDLINE_ARGS[1][0]) == 0) {
             op.nodamage = true;
+        }
+        else if (std::strcmp(argv[i], M_CMDLINE_ARGS[2][0]) == 0) {
+            for (const auto& _arg: M_CMDLINE_ARGS) {
+                std::cout << _arg[0] << '\t' << _arg[1] << '\n';
+            }
+            op.help = true;
+        }
     }
+    return op;
 }
 
 int main(int argc, char* argv[])
 {
     Start_Opts opts; // options
     if (0 < argc)
-        checkargs(argc, argv, opts);
+        opts = checkargs(argc, argv);
 
-    init(opts);
+    if (!opts.help) {
+        init(opts);
+        // main loop
+        while (!m_quit) {
+            auto tp1 = std::chrono::steady_clock::now();
 
-    // main loop
-    while (true) {
-        auto tp1 = std::chrono::steady_clock::now();
+            input();
+            update();   // logical update
+            draw(); // update frame
 
-        input();
-        update();   // logical update
-        draw(); // update frame
-
-        auto tp2 = std::chrono::steady_clock::now();
-        Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
-        if (menu) { // dont include the time we've spent in the menu
-            menu = false;
-            Game_manager::deltatime = 0;
+            auto tp2 = std::chrono::steady_clock::now();
+            Game_manager::deltatime = std::chrono::duration<float>(tp2-tp1).count();
+            if (m_menu) { // dont include the time we've spent in the menu
+                m_menu = false;
+                Game_manager::deltatime = 0;
+            }
         }
+
+        free_mem();
+        endwin();
     }
+    return 0;
 }
 
 void init(const Start_Opts& opts)
@@ -153,10 +178,10 @@ void init(const Start_Opts& opts)
 
     // windows
     m_stats = newwin(M_POINTSWIN_NLINES, M_POINTSWIN_NCOLS, M_POINTSWIN_BEGY, M_POINTSWIN_BEGX);
-    msgwin = newwin(M_MSGWIN_NLINES, M_MSGWIN_NCOLS, M_MSGWIN_BEGY, M_MSGWIN_BEGX);
-    menuwin = newwin(M_MENUWIN_NLINES, M_MENUWIN_NCOLS, M_MENUWIN_BEGY, M_MENUWIN_BEGX);
+    m_msgwin = newwin(M_MSGWIN_NLINES, M_MSGWIN_NCOLS, M_MSGWIN_BEGY, M_MSGWIN_BEGX);
+    m_menuwin = newwin(M_MENUWIN_NLINES, M_MENUWIN_NCOLS, M_MENUWIN_BEGY, M_MENUWIN_BEGX);
 
-    descwin = derwin(menuwin, M_DESCWIN_NLINES, M_DESCWIN_NCOLS, M_DESCWIN_BEGY, M_DESCWIN_BEGX);
+    m_descwin = derwin(m_menuwin, M_DESCWIN_NLINES, M_DESCWIN_NCOLS, M_DESCWIN_BEGY, M_DESCWIN_BEGX);
 
     // menu items
     m_items.reserve(M_ITEMS_TXT.size() + 1); // including nullptr
@@ -166,20 +191,20 @@ void init(const Start_Opts& opts)
     m_items.push_back(nullptr); // last item has to be null (see menu documentation)
 
     item_opts_off(m_items[0], O_SELECTABLE);
-    keypad(menuwin, TRUE);
+    keypad(m_menuwin, TRUE);
 
-    mainmenu = new_menu(m_items.data());
+    m_mainmenu = new_menu(m_items.data());
 
     // menu customizations
-    set_menu_win(mainmenu, menuwin);
-    set_menu_sub(mainmenu, derwin(menuwin, M_MENUSUBWIN_NLINES, M_MENUSUBWIN_NCOLS,
+    set_menu_win(m_mainmenu, m_menuwin);
+    set_menu_sub(m_mainmenu, derwin(m_menuwin, M_MENUSUBWIN_NLINES, M_MENUSUBWIN_NCOLS,
     M_MENUSUBWIN_BEGY, M_MENUSUBWIN_BEGX));
-    set_menu_format(mainmenu, M_MENUFORMAT_ROWS, M_MENUFORMAT_COLS);
-    menu_opts_off(mainmenu, M_MENUOPTS_OFF);
-    set_menu_mark(mainmenu, M_MENU_CURSOR);
+    set_menu_format(m_mainmenu, M_MENUFORMAT_ROWS, M_MENUFORMAT_COLS);
+    menu_opts_off(m_mainmenu, M_MENUOPTS_OFF);
+    set_menu_mark(m_mainmenu, M_MENU_CURSOR);
 
-    stdpnl = new_panel(stdscr);
-    msgpnl = new_panel(msgwin);
+    m_stdpnl = new_panel(stdscr);
+    m_msgpnl = new_panel(m_msgwin);
 
     update_panels();
     doupdate();
@@ -196,21 +221,20 @@ void init(const Start_Opts& opts)
 
     item_opts_on(m_items[0], O_SELECTABLE);
 }
-void finish()
+
+void free_mem()
 {
-    unpost_menu(mainmenu);
-    free_menu(mainmenu);
+    unpost_menu(m_mainmenu);
+    free_menu(m_mainmenu);
     for (auto& it: m_items)
         free_item(it);
     // delete associate panels
-    del_panel(stdpnl);
-    del_panel(msgpnl);
+    del_panel(m_stdpnl);
+    del_panel(m_msgpnl);
     // delete windows
-    delwin(menuwin);
-    delwin(msgwin);
-    delwin(descwin);
-    endwin();
-    exit(0);
+    delwin(m_menuwin);
+    delwin(m_msgwin);
+    delwin(m_descwin);
 }
 
 void input()
@@ -241,9 +265,9 @@ void input()
             Game_manager::bullets.push_back(Game_manager::player.shoot());
             break;
         case 'q':   // a shortcut for quiting
-            finish();
+            m_quit = true;
             break;
-        case ESC:
+        case M_ESC:
             showmenu();
             break;
         default:
@@ -279,7 +303,7 @@ void design_w(WINDOW* win, const char* title)
     int maxx = getmaxx(win);
     werase(win);
     box(win, 0, 0);
-    mvwaddstr(win, 0 , (maxx-strlen(title))/2, title);
+    mvwaddstr(win, 0 , static_cast<int>((maxx-strlen(title))/2), title);
     wrefresh(win);
 }
 
@@ -288,8 +312,8 @@ void task_showmessage(const std::string_view msg)
 {
     std::unique_lock lck {m_access_curses};
 
-    show_panel(msgpnl);
-    text_buffer(msgwin, msg.data());
+    show_panel(m_msgpnl);
+    text_buffer(m_msgwin, msg.data());
 
     update_panels();
     doupdate();
@@ -298,18 +322,18 @@ void task_showmessage(const std::string_view msg)
     std::this_thread::sleep_for(_Showmessage_timer);
     lck.lock();
 
-    hide_panel(msgpnl);
+    hide_panel(m_msgpnl);
     update_panels();
     doupdate();
 
-    m_thr_run = false;
+    m_thread_ran = false;
 }
 void showmessage(std::string_view msg)
 {
-    if (m_thr_run)
+    if (m_thread_ran)
         return;
 
-    m_thr_run = true;
+    m_thread_ran = true;
     std::thread task {task_showmessage, msg};
     task.detach();
 }
@@ -331,41 +355,41 @@ void update()
 
 void showmenu_desc()
 {
-    design_w(descwin, "Description");
-    text_buffer(descwin, item_description(current_item(mainmenu)));
+    design_w(m_descwin, "Description");
+    text_buffer(m_descwin, item_description(current_item(m_mainmenu)));
 }
 
 void show_help()
 {
-    unpost_menu(mainmenu);
+    unpost_menu(m_mainmenu);
     // change background color of the menu here...
-    text_buffer(menuwin, Help_description.data());
-    werase(menuwin);
-    wbkgd(menuwin, 0);
+    text_buffer(m_menuwin, Help_description.data());
+    werase(m_menuwin);
+    wbkgd(m_menuwin, 0);
     // set default color here...
-    box(menuwin, 0, 0);
-    mvwaddstr(menuwin, 0, 2, "Menu!");
-    post_menu(mainmenu);
+    box(m_menuwin, 0, 0);
+    mvwaddstr(m_menuwin, 0, 2, "Menu!");
+    post_menu(m_mainmenu);
     showmenu_desc();
-    wrefresh(menuwin);
+    wrefresh(m_menuwin);
 }
 
 void gameover()
 {
-    wclear(menuwin);
+    wclear(m_menuwin);
     // change background color here
     int maxx, maxy;
-    getmaxyx(menuwin, maxy, maxx);
+    getmaxyx(m_menuwin, maxy, maxx);
 
-    box(menuwin, 0, 0);
+    box(m_menuwin, 0, 0);
     char mesg[] = "GAME OVER!";
-    mvwaddstr(menuwin, maxy/2, (maxx-std::strlen(mesg))/2, mesg);
+    mvwaddstr(m_menuwin, maxy/2, static_cast<int>((maxx-std::strlen(mesg))/2), mesg);
     refresh();
-    wrefresh(menuwin);
+    wrefresh(m_menuwin);
     std::this_thread::sleep_for(_Gameover_timer);
 
-    werase(menuwin);
-    wbkgd(menuwin, 0);
+    werase(m_menuwin);
+    wbkgd(m_menuwin, 0);
     // set default background color here
     item_opts_off(m_items[0], O_SELECTABLE);
     showmenu();
@@ -373,46 +397,53 @@ void gameover()
 
 void showmenu()
 {
-    menu = true;
+    m_menu = true;
     // update background!
     erase();
     refresh();
 
-    box(menuwin, 0, 0);
-    mvwaddstr(menuwin, 0, 2, "Menu!");
-    post_menu(mainmenu);
+    box(m_menuwin, 0, 0);
+    mvwaddstr(m_menuwin, 0, 2, "Menu!");
+    post_menu(m_mainmenu);
     showmenu_desc();
-    wrefresh(menuwin);
+    wrefresh(m_menuwin);
 
-    int ch = 0;
-    while (ch != 27) {
-        ch = wgetch(menuwin);
+    bool menu_loop = true;
+    while (menu_loop) {
+        int ch = wgetch(m_menuwin);
         switch (ch) {
             case KEY_DOWN:
+            case 'j':
             case 's':
-                menu_driver(mainmenu, REQ_DOWN_ITEM);
+                menu_driver(m_mainmenu, REQ_DOWN_ITEM);
                 showmenu_desc();
                 break;
             case KEY_UP:
+            case 'k':
             case 'w':
-                menu_driver(mainmenu, REQ_UP_ITEM);
+                menu_driver(m_mainmenu, REQ_UP_ITEM);
                 showmenu_desc();
                 break;
+            case M_ESC:
+                menu_loop = false;
+                break;
             case '\n':
-                ITEM* cur_item = current_item(mainmenu);
+                ITEM* cur_item = current_item(m_mainmenu);
                 if (item_opts(cur_item) & O_SELECTABLE) {
                     std::string iname {item_name(cur_item)};
-                    if (iname == "Exit")
-                        finish();
+                    if (iname == "Exit") {
+                        m_quit = true;
+                        menu_loop = false;
+                    }
                     else if (iname == "New Game") {
                         if (item_opts(cur_item) & O_SELECTABLE) {
                             Game_manager::restart();
-                            ch = 27;
+                            menu_loop = false;
                         }
                     }
                     else if (iname == "Resume") {
                         if (item_opts(cur_item) & O_SELECTABLE) {
-                            ch = 27;
+                            menu_loop = false;
                         }
                     }
                     else if (iname == "Help") {
@@ -421,11 +452,11 @@ void showmenu()
                 }
                 break;
         }
-        wrefresh(menuwin);
+        wrefresh(m_menuwin);
     }
 
-    unpost_menu(mainmenu);
-    wrefresh(menuwin);
+    unpost_menu(m_mainmenu);
+    wrefresh(m_menuwin);
 }
 
 void text_buffer(WINDOW* place, const char* msg)
