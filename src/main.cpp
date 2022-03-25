@@ -74,7 +74,7 @@ const std::vector<std::vector<const char*>> M_ITEMS_TXT {
 
 const std::vector<std::vector<const char*>> M_CMDLINE_ARGS {
     {"--no-menu", "Go directly to the game (without showing menu)"},
-    {"--no-damage", " Die hard - sets the player health to maximum possible value"},
+    {"--no-damage", "Die hard - sets the player health to maximum possible value"},
     {"--help", "Show this message and quit"}
 };
 
@@ -303,7 +303,7 @@ void design_w(WINDOW* win, const char* title)
     int maxx = getmaxx(win);
     werase(win);
     box(win, 0, 0);
-    mvwaddstr(win, 0 , (maxx-strlen(title))/2, title);
+    mvwaddstr(win, 0 , static_cast<int>((maxx-strlen(title))/2), title);
     wrefresh(win);
 }
 
@@ -383,7 +383,7 @@ void gameover()
 
     box(m_menuwin, 0, 0);
     char mesg[] = "GAME OVER!";
-    mvwaddstr(m_menuwin, maxy/2, (maxx-std::strlen(mesg))/2, mesg);
+    mvwaddstr(m_menuwin, maxy/2, static_cast<int>((maxx-std::strlen(mesg))/2), mesg);
     refresh();
     wrefresh(m_menuwin);
     std::this_thread::sleep_for(_Gameover_timer);
