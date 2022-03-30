@@ -474,7 +474,8 @@ void text_buffer(WINDOW* place, const char* msg)
     };
 
     static const regex pattern {R"((\S+\s*))"};
-    int bufl = 0, bufc = 0, winattrs = 0, prev = 0;
+    int bufl = 0, bufc = 0,  prev = 0;
+	chtype winattrs = 0;
 
     // do not use these two variables; use 'maxc' and 'maxl' instead
     int maxx, maxy;
@@ -505,7 +506,7 @@ void text_buffer(WINDOW* place, const char* msg)
     for (cregex_iterator iter {desc.cbegin(), desc.cend(), pattern}; iter!=cregex_iterator{}; ++iter) {
         string word = iter->str(1);
 
-        int wsize = count_if(word.begin(), word.end(), not_attr);
+        int wsize = static_cast<int>(count_if(word.begin(), word.end(), not_attr));
         lsize += wsize;
         if (lsize > maxc && wsize < maxc && word.front() != '\n') {
             newline_buf(bufc);
@@ -536,7 +537,7 @@ void text_buffer(WINDOW* place, const char* msg)
                     break;
                 }
                 else {
-                    lsize = count_if(next, word.end(), not_attr);
+                    lsize = static_cast<int>(count_if(next, word.end(), not_attr));
                 }
                 continue;
             }
@@ -569,7 +570,7 @@ void text_buffer(WINDOW* place, const char* msg)
                 // word iterators are undefined
                 ch = word.begin();
                 // count new length
-                wsize = count_if(ch+1, word.end(), not_attr);
+                wsize = static_cast<int>(count_if(ch+1, word.end(), not_attr));
                 lsize += wsize;
 
                 if (wsize >= maxc)
@@ -648,7 +649,7 @@ void text_buffer(WINDOW* place, const char* msg)
 
         for (bufc = 0; bufc < maxc; bufc++) {
             if (line == maxbufl - 1) { // this is last line in the buffer
-                if (bufc == lch_size && lch_size != 0)
+                if (static_cast<unsigned int>(bufc) == lch_size && lch_size != 0)
                     break;
             }
             waddch(place, buffer.at(line*maxc + bufc));

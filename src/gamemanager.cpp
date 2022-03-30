@@ -63,7 +63,7 @@ void Game_manager::generate_enemies()
 
         bool isempty =
             std::find_if(enemies.begin(), enemies.end(), [&](Enemy& en){
-                return (en.gety() == y) && (en.getx() == x);
+                return (en.gety() == y) && (en.getx() == static_cast<float>(x));
             })==enemies.end();
         if (!isempty) {
             --i;
@@ -77,8 +77,8 @@ void Game_manager::generate_enemies()
 
 void Game_manager::move_enemies()
 {
-    const static float max_y = LINES - _Allowed_distance_from_end;
-    const static float right_distance = COLS - _Allowed_distance_from_corner;
+    const static float max_y = static_cast<float>(LINES) - _Allowed_distance_from_end;
+    const static float right_distance = static_cast<float>(COLS) - _Allowed_distance_from_corner;
 
     static Rand choose_up {static_cast<int>(Enemy_states::up_left),
         static_cast<int>(Enemy_states::up_right)};
@@ -192,7 +192,7 @@ void Game_manager::update()
 
 void Game_manager::restart()
 {
-    player = {_Player_initial_y, _Player_initial_x};
+    player = {static_cast<float>(_Player_initial_y), static_cast<float>(_Player_initial_x)};
     player_points = 0;
     enemies.clear();
     bullets.clear();
