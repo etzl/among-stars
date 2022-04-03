@@ -474,14 +474,14 @@ void text_buffer(WINDOW* place, const char* msg)
     };
 
     static const regex pattern {R"((\S+\s*))"};
-    int bufl = 0, bufc = 0,  prev = 0;
+    unsigned bufl = 0, bufc = 0, prev = 0;
 	chtype winattrs = 0;
 
     // do not use these two variables; use 'maxc' and 'maxl' instead
     int maxx, maxy;
     getmaxyx(place, maxy, maxx);
-    const int maxc = maxx - 2, maxl = maxy - 2; // sizes which we can actually use
-    int m_line = maxl;
+    const unsigned maxc = maxx - 2, maxl = maxy - 2; // sizes which we can actually use
+    unsigned m_line = maxl;
 
     design_w(place, "Description");
 
@@ -493,20 +493,20 @@ void text_buffer(WINDOW* place, const char* msg)
      */
     auto newline_buf = [&](int column) {
         bufc = 0; bufl++;
-        int size = maxc - column;
+        unsigned size = maxc - column;
         while (size-- > 0) {
             buffer.push_back(32);
         }
     };
 
     bool bflag = false;
-    int lsize = 0;
+    size_t lsize = 0;
 
     // process text
     for (cregex_iterator iter {desc.cbegin(), desc.cend(), pattern}; iter!=cregex_iterator{}; ++iter) {
         string word = iter->str(1);
 
-        int wsize = static_cast<int>(count_if(word.begin(), word.end(), not_attr));
+        size_t wsize = count_if(word.begin(), word.end(), not_attr);
         lsize += wsize;
         if (lsize > maxc && wsize < maxc && word.front() != '\n') {
             newline_buf(bufc);
@@ -604,7 +604,7 @@ void text_buffer(WINDOW* place, const char* msg)
 
     // print buffer
     bufl=0; // mark the begging of the buffer - we will start printing from here
-    int winline = 0; // track current line in the window (starting from 1)
+    unsigned winline = 0; // track current line in the window (starting from 1)
     const double maxbufl = std::ceil(static_cast<double>(buffer.size()) / maxc);
     bool interactive = false;
     const auto lch_size = buffer.size() % maxc;
