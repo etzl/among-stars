@@ -78,7 +78,7 @@ class Player : public Interactable {
          */
         void draw(WINDOW* plac) const override
         {
-            mvwaddstr(plac, y, x-1, _Player_shape);
+            mvwaddstr(plac, static_cast<int>(y), static_cast<int>(x-1), _Player_shape);
         }
 
         /** Vertical size, occupied by the player
@@ -129,7 +129,7 @@ class Enemy :public Interactable {
          */
         void draw(WINDOW* plac) const override
         {
-            mvwaddstr(plac, y, x-2, _Enemy_shape);
+            mvwaddstr(plac, static_cast<int>(y), static_cast<int>(x-2), _Enemy_shape);
         }
 
         /** Vertical size, occupied by the enemy
