@@ -11,10 +11,10 @@ bool Bullet::update()
     move(direction);
     if (direction == Dir::up) {
         float lastbigdistance = 0;
-        int index;
+        size_t index;
         bool hit = false;
 
-        for (int i=0; i<Game_manager::enemies.size(); ++i)
+        for (size_t i=0; i<Game_manager::enemies.size(); ++i)
             if (Game_manager::enemies[i].inrange(x)) {
                 float distance = Game_manager::enemies[i].gety() - y;
                 // check if we hit or already passed the enemy
@@ -41,7 +41,7 @@ bool Bullet::update()
         }
 
     // destroy out of screen bullets
-    if (y <= 0 || y >= LINES)
+    if (y <= 0 || y >= static_cast<float>(LINES))
         return true;
 
     return 0;

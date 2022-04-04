@@ -39,7 +39,7 @@ make run or ./among_stars
 
 ### Dependencies
 
-- A compiler that supports *C++17* or higher
+- GNU compiler that supports *C++17* or higher (version 9 or later)
 - ncurses library and header files
 
 Packages on Debian (bullseye): `libncurses-dev` and `libncurses6`  
