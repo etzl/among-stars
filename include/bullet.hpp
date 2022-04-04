@@ -40,7 +40,7 @@ class Bullet :public Drawable_obj {
          */
         void draw(WINDOW* plac) const override  // should later be changed to perform on stdscr
         {
-            mvwaddch(plac, y, x, _Bullet_shape);
+            mvwaddch(plac, static_cast<int>(y), static_cast<int>(x), _Bullet_shape);
         }
 
     private:

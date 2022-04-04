@@ -50,6 +50,11 @@ class Stats {
             return *this;
         }
 
+        WINDOW *getwin()
+        {
+            return win;
+        }
+
         void draw()
         {
             werase(win);

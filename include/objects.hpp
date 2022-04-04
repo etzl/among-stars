@@ -13,10 +13,12 @@ constexpr int _Enemy_maxhealth {1};
 #define _Player_shape R"(/_\)"
 constexpr short _Player_shape_len {1};
 constexpr short _Player_shape_col {3};
+constexpr short _Player_color {5};
 
 #define _Enemy_shape R"(>||<)"
 constexpr short _Enemy_shape_len {1};
 constexpr short _Enemy_shape_col {4};
+constexpr short _Enemy_color {6};
 
 
 class Bullet;
@@ -78,7 +80,9 @@ class Player : public Interactable {
          */
         void draw(WINDOW* plac) const override
         {
-            mvwaddstr(plac, y, x-1, _Player_shape);
+            wattron(plac, COLOR_PAIR(_Player_color));
+            mvwaddstr(plac, static_cast<int>(y), static_cast<int>(x-1), _Player_shape);
+            wattroff(plac, COLOR_PAIR(_Player_color));
         }
 
         /** Vertical size, occupied by the player
@@ -129,7 +133,9 @@ class Enemy :public Interactable {
          */
         void draw(WINDOW* plac) const override
         {
-            mvwaddstr(plac, y, x-2, _Enemy_shape);
+            wattron(plac, COLOR_PAIR(_Enemy_color));
+            mvwaddstr(plac, static_cast<int>(y), static_cast<int>(x-2), _Enemy_shape);
+            wattroff(plac, COLOR_PAIR(_Enemy_color));
         }
 
         /** Vertical size, occupied by the enemy
