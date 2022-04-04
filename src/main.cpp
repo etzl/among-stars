@@ -65,7 +65,7 @@ constexpr short M_REDONBLACK {6};
 constexpr short M_YELLOWONBLACK {7};
 
 constexpr short M_MENUCOLOR {M_YELLOWONMAGENTA};
-constexpr short M_DESCRIPCOLOR {M_REDONCYAN};
+constexpr short M_DESCRIPCOLOR {M_CYANONBLACK};
 constexpr short M_MSGCOLOR {M_YELLOWONBLACK};
 constexpr short M_STATSCOLOR {M_GREENONBLACK};
 
@@ -540,7 +540,7 @@ void text_buffer(WINDOW* place, const char* msg)
 
         for (auto ch=word.begin(); ch!=word.end(); ++ch) {
             if (*ch == '<') {
-                // winattrs |= COLOR_PAIR(5);
+                winattrs |= COLOR_PAIR(M_REDONCYAN);
             }
             else if (*ch == '*') {
                 if (winattrs & A_BOLD) {
@@ -622,7 +622,7 @@ void text_buffer(WINDOW* place, const char* msg)
             prev = *ch;
 
             if (*ch == '>') {
-                // winattrs ^= COLOR_PAIR(5);
+                winattrs ^= COLOR_PAIR(M_REDONCYAN);
             }
         }
     }
