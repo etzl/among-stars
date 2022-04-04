@@ -56,12 +56,20 @@ constexpr short M_MENUFORMAT_ROWS {M_MENUSUBWIN_NLINES - 2};
 constexpr short M_MENUFORMAT_COLS {1};
 
 // colors
-constexpr short M_GREENCOLOR_PAIR {1};
-constexpr short M_REDCOLOR_PAIR {2};
-constexpr short M_WHITECOLOR_PAIR {3};
-constexpr short M_BLUECOLOR_PAIR {4};
+constexpr short M_GREENONBLACK {1};
+constexpr short M_REDONCYAN {2};
+constexpr short M_BLUEONBLACK {3};
+constexpr short M_YELLOWONMAGENTA {4};
+constexpr short M_CYANONBLACK {5};
+constexpr short M_REDONBLACK {6};
+constexpr short M_YELLOWONBLACK {7};
 
-#define M_MENU_CURSOR "* "
+constexpr short M_MENUCOLOR {M_YELLOWONMAGENTA};
+constexpr short M_DESCRIPCOLOR {M_REDONCYAN};
+constexpr short M_MSGCOLOR {M_YELLOWONBLACK};
+constexpr short M_STATSCOLOR {M_GREENONBLACK};
+
+#define M_MENU_CURSOR "> "
 
 constexpr int M_MENUOPTS_OFF {O_SHOWDESC}; /* options to turn off from menu */
 
@@ -163,6 +171,9 @@ void init(const Start_Opts& opts)
 {
     // curses initializations
     initscr();
+    if (has_colors()) { // all color functions will return an error otherwise and we continue without color
+        start_color();
+    }
     cbreak();
     nl();
     noecho();
@@ -170,18 +181,28 @@ void init(const Start_Opts& opts)
     timeout(_timeoutms.count());
     keypad(stdscr, TRUE);
 
-    // colors
-    init_pair(M_GREENCOLOR_PAIR, COLOR_GREEN, 0);
-    init_pair(M_REDCOLOR_PAIR, COLOR_RED, 0);
-    init_pair(M_WHITECOLOR_PAIR, COLOR_WHITE, 0);
-    init_pair(M_BLUECOLOR_PAIR, COLOR_BLUE, 0);
-
     // windows
     m_stats = newwin(M_POINTSWIN_NLINES, M_POINTSWIN_NCOLS, M_POINTSWIN_BEGY, M_POINTSWIN_BEGX);
     m_msgwin = newwin(M_MSGWIN_NLINES, M_MSGWIN_NCOLS, M_MSGWIN_BEGY, M_MSGWIN_BEGX);
     m_menuwin = newwin(M_MENUWIN_NLINES, M_MENUWIN_NCOLS, M_MENUWIN_BEGY, M_MENUWIN_BEGX);
 
     m_descwin = derwin(m_menuwin, M_DESCWIN_NLINES, M_DESCWIN_NCOLS, M_DESCWIN_BEGY, M_DESCWIN_BEGX);
+
+    // colors
+    init_pair(M_GREENONBLACK, COLOR_GREEN, COLOR_BLACK);
+    init_pair(M_REDONCYAN, COLOR_RED, COLOR_CYAN);
+    init_pair(M_BLUEONBLACK, COLOR_BLUE, COLOR_BLACK);
+    init_pair(M_YELLOWONMAGENTA, COLOR_YELLOW, COLOR_MAGENTA);
+    init_pair(M_CYANONBLACK, COLOR_CYAN, COLOR_BLACK);
+    init_pair(M_REDONBLACK, COLOR_RED, COLOR_BLACK);
+    init_pair(M_YELLOWONBLACK, COLOR_YELLOW, COLOR_BLACK);
+
+    wattron(m_menuwin, COLOR_PAIR(M_MENUCOLOR));
+    wattron(m_descwin, COLOR_PAIR(M_DESCRIPCOLOR));
+    wbkgdset(m_descwin, COLOR_PAIR(M_DESCRIPCOLOR)); // background color - for unwritten parts of the window
+    wattron(m_msgwin, COLOR_PAIR(M_MSGCOLOR));
+    wattron(m_stats.getwin(), COLOR_PAIR(M_STATSCOLOR));
+    wbkgdset(m_stats.getwin(), COLOR_PAIR(M_STATSCOLOR));
 
     // menu items
     m_items.reserve(M_ITEMS_TXT.size() + 1); // including nullptr
@@ -202,6 +223,7 @@ void init(const Start_Opts& opts)
     set_menu_format(m_mainmenu, M_MENUFORMAT_ROWS, M_MENUFORMAT_COLS);
     menu_opts_off(m_mainmenu, M_MENUOPTS_OFF);
     set_menu_mark(m_mainmenu, M_MENU_CURSOR);
+    set_menu_fore(m_mainmenu, COLOR_PAIR(M_MENUCOLOR));
 
     m_stdpnl = new_panel(stdscr);
     m_msgpnl = new_panel(m_msgwin);
@@ -363,11 +385,13 @@ void showmenu_desc()
 void show_help()
 {
     unpost_menu(m_mainmenu);
-    // change background color of the menu here...
+    wbkgdset(m_menuwin, COLOR_PAIR(M_DESCRIPCOLOR));
+
     text_buffer(m_menuwin, Help_description.data());
+
     werase(m_menuwin);
-    wbkgd(m_menuwin, 0);
-    // set default color here...
+    wbkgd(m_menuwin, COLOR_PAIR(COLOR_BLACK));
+    wattron(m_menuwin, COLOR_PAIR(M_MENUCOLOR));
     box(m_menuwin, 0, 0);
     mvwaddstr(m_menuwin, 0, 2, "Menu!");
     post_menu(m_mainmenu);
