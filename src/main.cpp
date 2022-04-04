@@ -205,6 +205,7 @@ void init(const Start_Opts& opts)
 
     m_stdpnl = new_panel(stdscr);
     m_msgpnl = new_panel(m_msgwin);
+    hide_panel(m_msgpnl);
 
     update_panels();
     doupdate();
