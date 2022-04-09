@@ -64,10 +64,11 @@ constexpr short M_CYANONBLACK {5};
 constexpr short M_REDONBLACK {6};
 constexpr short M_YELLOWONBLACK {7};
 
-constexpr short M_MENUCOLOR {M_YELLOWONMAGENTA};
+constexpr short M_MENUCOLOR {M_CYANONBLACK};
 constexpr short M_DESCRIPCOLOR {M_CYANONBLACK};
 constexpr short M_MSGCOLOR {M_YELLOWONBLACK};
 constexpr short M_STATSCOLOR {M_GREENONBLACK};
+constexpr short M_HELPCOLOR {M_CYANONBLACK};
 
 #define M_MENU_CURSOR "> "
 
@@ -185,7 +186,6 @@ void init(const Start_Opts& opts)
     m_stats = newwin(M_POINTSWIN_NLINES, M_POINTSWIN_NCOLS, M_POINTSWIN_BEGY, M_POINTSWIN_BEGX);
     m_msgwin = newwin(M_MSGWIN_NLINES, M_MSGWIN_NCOLS, M_MSGWIN_BEGY, M_MSGWIN_BEGX);
     m_menuwin = newwin(M_MENUWIN_NLINES, M_MENUWIN_NCOLS, M_MENUWIN_BEGY, M_MENUWIN_BEGX);
-
     m_descwin = derwin(m_menuwin, M_DESCWIN_NLINES, M_DESCWIN_NCOLS, M_DESCWIN_BEGY, M_DESCWIN_BEGX);
 
     // colors
@@ -385,7 +385,7 @@ void showmenu_desc()
 void show_help()
 {
     unpost_menu(m_mainmenu);
-    wbkgdset(m_menuwin, COLOR_PAIR(M_DESCRIPCOLOR));
+    wbkgdset(m_menuwin, COLOR_PAIR(M_HELPCOLOR));
 
     text_buffer(m_menuwin, Help_description.data());
 
@@ -540,7 +540,7 @@ void text_buffer(WINDOW* place, const char* msg)
 
         for (auto ch=word.begin(); ch!=word.end(); ++ch) {
             if (*ch == '<') {
-                winattrs |= COLOR_PAIR(M_REDONCYAN);
+                winattrs |= A_REVERSE;
             }
             else if (*ch == '*') {
                 if (winattrs & A_BOLD) {
@@ -622,7 +622,7 @@ void text_buffer(WINDOW* place, const char* msg)
             prev = *ch;
 
             if (*ch == '>') {
-                winattrs ^= COLOR_PAIR(M_REDONCYAN);
+                winattrs ^= A_REVERSE;
             }
         }
     }
