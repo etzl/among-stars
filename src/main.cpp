@@ -181,6 +181,7 @@ void init(const Start_Opts& opts)
     curs_set(0);
     timeout(_timeoutms.count());
     keypad(stdscr, TRUE);
+    ESCDELAY = 10;
 
     // windows
     m_stats = newwin(M_POINTSWIN_NLINES, M_POINTSWIN_NCOLS, M_POINTSWIN_BEGY, M_POINTSWIN_BEGX);
