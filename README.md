@@ -47,7 +47,7 @@ This is probably the same on recent Debian distros and Debian derivatives (like 
 
 ## Documentation
 
-You can look through [wikis](https://github.com/etzl/among-stars/wiki) for technical details, and more detailed description, which is a work in progress.
+You can look through [wikis](https://github.com/etzl/among-stars/wiki) for technical details, and more detailed description, to help you understand the code.
 
 ## Contributing
 
