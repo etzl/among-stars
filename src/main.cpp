@@ -63,11 +63,14 @@ constexpr short M_YELLOWONMAGENTA {4};
 constexpr short M_CYANONBLACK {5};
 constexpr short M_REDONBLACK {6};
 constexpr short M_YELLOWONBLACK {7};
+constexpr short M_DYNAMICONBLACK {8};
+
+constexpr short COLOR_DYNAMIC {10};
 
 constexpr short M_MENUCOLOR {M_CYANONBLACK};
 constexpr short M_DESCRIPCOLOR {M_CYANONBLACK};
 constexpr short M_MSGCOLOR {M_YELLOWONBLACK};
-constexpr short M_STATSCOLOR {M_GREENONBLACK};
+constexpr short M_STATSCOLOR {M_BLUEONBLACK};
 constexpr short M_HELPCOLOR {M_CYANONBLACK};
 
 #define M_MENU_CURSOR "> "
@@ -190,6 +193,8 @@ void init(const Start_Opts& opts)
     m_descwin = derwin(m_menuwin, M_DESCWIN_NLINES, M_DESCWIN_NCOLS, M_DESCWIN_BEGY, M_DESCWIN_BEGX);
 
     // colors
+    init_color(COLOR_DYNAMIC, 0, 1000, 0); // define green
+
     init_pair(M_GREENONBLACK, COLOR_GREEN, COLOR_BLACK);
     init_pair(M_REDONCYAN, COLOR_RED, COLOR_CYAN);
     init_pair(M_BLUEONBLACK, COLOR_BLUE, COLOR_BLACK);
@@ -197,6 +202,7 @@ void init(const Start_Opts& opts)
     init_pair(M_CYANONBLACK, COLOR_CYAN, COLOR_BLACK);
     init_pair(M_REDONBLACK, COLOR_RED, COLOR_BLACK);
     init_pair(M_YELLOWONBLACK, COLOR_YELLOW, COLOR_BLACK);
+    init_pair(M_DYNAMICONBLACK, COLOR_DYNAMIC, COLOR_BLACK);
 
     wattron(m_menuwin, COLOR_PAIR(M_MENUCOLOR));
     wattron(m_descwin, COLOR_PAIR(M_DESCRIPCOLOR));

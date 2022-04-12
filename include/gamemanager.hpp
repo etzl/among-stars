@@ -12,15 +12,15 @@
 #define M_MAX_COLLISION_RANGE_Y LINES-M_COLLISION_RANGE
 #define M_MAX_COLLISION_RANGE_X COLS-M_COLLISION_RANGE /* distance from the right of the screen */
 
-#define M_ENEMY_COLLISION_RANGE 4
-#define M_ENEMY_MAX_COLLISION_RANGE_X COLS-M_ENEMY_COLLISION_RANGE
+#define M_ENEMY_COLLISION_RANGE_X 4
+#define M_ENEMY_MAX_COLLISION_RANGE_X COLS-M_ENEMY_COLLISION_RANGE_X
 
-#define M_HIGH_GROUND M_COLLISION_RANGE+1 /* this is the distance from the top (high ground) */
+#define M_HIGH_GROUND M_COLLISION_RANGE /* this is the distance from the top (high ground) */
 #define M_MAX_DISTANCE_END M_MAX_COLLISION_RANGE_Y-6 /* maximum possible value for enemies to get close to the player */
 
 #define M_PLAYER_INIT_X COLS/2
 #define M_PLAYER_INIT_Y M_MAX_COLLISION_RANGE_Y-3
-#define M_ENEMY_FIRST_COL_GENERATE M_ENEMY_COLLISION_RANGE+2
+#define M_ENEMY_FIRST_COL_GENERATE M_ENEMY_COLLISION_RANGE_X+2
 #define M_ENEMY_LAST_COL_GENERATE M_ENEMY_MAX_COLLISION_RANGE_X-2
 
 constexpr short _Max_enemy_per_row {4};   /* Maximum allowed enemies while generating a new line of enemies */

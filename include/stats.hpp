@@ -1,8 +1,9 @@
-#ifndef STATS_HPP
-#define STATS_HPP
+#ifndef STATS_HPP_
+#define STATS_HPP_
 
 
 #include <string>
+#include <panel.h>
 
 #include "drawable.hpp"
 #include "gamemanager.hpp"
@@ -50,22 +51,18 @@ class Stats {
             return *this;
         }
 
+        /** Get underline window associated with stats object
+         * \return A pointer to the underline window
+         */
         WINDOW *getwin()
         {
             return win;
         }
 
-        void draw()
-        {
-            werase(win);
-            box(win, 0, 0);
-
-            _health.assign("HP: " + std::to_string(Game_manager::player.gethealth()));
-            mvwaddstr(win, _Health_begy, _Health_begx, _health.c_str());
-
-            _points.assign("KP: " + std::to_string(Game_manager::player_points));
-            mvwaddstr(win, _Points_begy, _Points_begx, _points.c_str());
-        }
+        /** Draw player's stats on the screen
+         * \return void
+         */
+        void draw();
 
         ~Stats()
         {
