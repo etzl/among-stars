@@ -233,8 +233,8 @@ void init(const Start_Opts& opts)
     update_panels();
     doupdate();
 
-    Game_manager::player = Player{static_cast<float>(_Player_initial_y),
-     static_cast<float>(_Player_initial_x)};
+    Game_manager::player = Player{static_cast<float>(M_PLAYER_INIT_Y),
+     static_cast<float>(M_PLAYER_INIT_X)};
 
 #ifndef _DEBUG
     if (!opts.nomenu)

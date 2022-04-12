@@ -7,30 +7,33 @@
 
 #include "objects.hpp"
 
+/* ==================MAGIC NUMBERS================ */
 #define M_COLLISION_RANGE 2
 #define M_MAX_COLLISION_RANGE_Y LINES-M_COLLISION_RANGE
-#define M_MAX_COLLISION_RANGE_X COLS-M_COLLISION_RANGE
+#define M_MAX_COLLISION_RANGE_X COLS-M_COLLISION_RANGE /* distance from the right of the screen */
 
-constexpr int _Max_enemy_per_row {4};   /* Maximum allowed enemies while generating a new line of enemies */
-constexpr int _Min_enemy_per_row {1};   /* Minimum number of allowed enemies while generating */
-constexpr int _Enemy_maximum_generate {4}; /* If enemies are less than this number we are allowed to regenerate more */
-constexpr int _Points_perenemy {1};
+#define M_ENEMY_COLLISION_RANGE 4
+#define M_ENEMY_MAX_COLLISION_RANGE_X COLS-M_ENEMY_COLLISION_RANGE
+
+#define M_HIGH_GROUND M_COLLISION_RANGE+1 /* this is the distance from the top (high ground) */
+#define M_MAX_DISTANCE_END M_MAX_COLLISION_RANGE_Y-6 /* maximum possible value for enemies to get close to the player */
+
+#define M_PLAYER_INIT_X COLS/2
+#define M_PLAYER_INIT_Y M_MAX_COLLISION_RANGE_Y-3
+#define M_ENEMY_FIRST_COL_GENERATE M_ENEMY_COLLISION_RANGE+2
+#define M_ENEMY_LAST_COL_GENERATE M_ENEMY_MAX_COLLISION_RANGE_X-2
+
+constexpr short _Max_enemy_per_row {4};   /* Maximum allowed enemies while generating a new line of enemies */
+constexpr short _Min_enemy_per_row {1};   /* Minimum number of allowed enemies while generating */
+constexpr short _Enemy_maximum_generate {4}; /* If enemies are less than this number we are allowed to regenerate more */
+constexpr short _Points_perenemy {1};
 
 constexpr float _High_power_speed_increase {6};
-#define M_HIGH_GROUND M_COLLISION_RANGE+1 /* this is the distance from the top (high ground) */
-
-constexpr float _Allowed_distance_from_end {8}; /* We can only reach this distance from bottom (when in high speed mode) */
-constexpr float _Allowed_distance_from_corner {6};   /* The distance from right or left of the screen */
 
 constexpr std::chrono::seconds _Showmessage_timer {1};
 constexpr std::chrono::seconds _Shoot_interval {3};
 constexpr std::chrono::milliseconds _timeoutms {50};
 constexpr std::chrono::seconds _Gameover_timer {3};
-
-#define _Player_initial_x COLS/2
-#define _Player_initial_y (LINES/2)+4
-#define _Enemy_first_allowed_column 2
-#define _Enemy_last_allowed_column COLS-3
 
 
 class Game_manager {
