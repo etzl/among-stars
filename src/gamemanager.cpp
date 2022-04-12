@@ -29,7 +29,7 @@ private:
 void c_highmode(Enemy& chk)
 {
     // if we passed a magic number and there's no other enemy in high mode
-    bool reached_high_ground = chk.gety() < _High_distance_from_begin;
+    bool reached_high_ground = chk.gety() <= M_HIGH_GROUND;
     bool allow_high = std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
         [](auto& enemy){
             return enemy.mode() == Enemy_states::high;

@@ -7,6 +7,9 @@
 
 #include "objects.hpp"
 
+#define M_COLLISION_RANGE 2
+#define M_MAX_COLLISION_RANGE_Y LINES-M_COLLISION_RANGE
+#define M_MAX_COLLISION_RANGE_X COLS-M_COLLISION_RANGE
 
 constexpr int _Max_enemy_per_row {4};   /* Maximum allowed enemies while generating a new line of enemies */
 constexpr int _Min_enemy_per_row {1};   /* Minimum number of allowed enemies while generating */
@@ -14,7 +17,7 @@ constexpr int _Enemy_maximum_generate {4}; /* If enemies are less than this numb
 constexpr int _Points_perenemy {1};
 
 constexpr float _High_power_speed_increase {6};
-constexpr float _High_distance_from_begin {1};
+#define M_HIGH_GROUND M_COLLISION_RANGE+1 /* this is the distance from the top (high ground) */
 
 constexpr float _Allowed_distance_from_end {8}; /* We can only reach this distance from bottom (when in high speed mode) */
 constexpr float _Allowed_distance_from_corner {6};   /* The distance from right or left of the screen */

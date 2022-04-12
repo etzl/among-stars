@@ -41,7 +41,7 @@ bool Bullet::update()
         }
 
     // destroy out of screen bullets
-    if (y <= 0 || y >= static_cast<float>(LINES))
+    if (y <= M_COLLISION_RANGE || y >= static_cast<float>(M_MAX_COLLISION_RANGE_Y))
         return true;
 
     return 0;
