@@ -29,7 +29,7 @@ private:
 void c_highmode(Enemy& chk)
 {
     // if we passed a magic number and there's no other enemy in high mode
-    bool reached_high_ground = chk.gety() < _High_distance_from_begin;
+    bool reached_high_ground = chk.gety() <= M_HIGH_GROUND;
     bool allow_high = std::find_if(Game_manager::enemies.begin(), Game_manager::enemies.end(),
         [](auto& enemy){
             return enemy.mode() == Enemy_states::high;
@@ -51,7 +51,7 @@ void c_highmode(Enemy& chk)
 void Game_manager::generate_enemies()
 {
     static Rand count_rand {_Min_enemy_per_row, _Max_enemy_per_row};
-    static Rand x_rand{_Enemy_first_allowed_column, _Enemy_last_allowed_column}; // these spaces will be occupied by the shape
+    static Rand x_rand{M_ENEMY_FIRST_COL_GENERATE, M_ENEMY_LAST_COL_GENERATE}; // these spaces will be occupied by the shape
     constexpr float y = 0;
 
     if (enemies.size() >= _Enemy_maximum_generate)
@@ -77,9 +77,6 @@ void Game_manager::generate_enemies()
 
 void Game_manager::move_enemies()
 {
-    const static float max_y = static_cast<float>(LINES) - _Allowed_distance_from_end;
-    const static float right_distance = static_cast<float>(COLS) - _Allowed_distance_from_corner;
-
     static Rand choose_up {static_cast<int>(Enemy_states::up_left),
         static_cast<int>(Enemy_states::up_right)};
 
@@ -88,7 +85,7 @@ void Game_manager::move_enemies()
             case Enemy_states::high:
                 enemy.move(Dir::down);
 
-                if (enemy.gety() >= max_y) {
+                if (enemy.gety() >= static_cast<float>(M_MAX_DISTANCE_END)) {
                     enemy.setspeed(enemy.getspeed()-_High_power_speed_increase);
                     enemy.mode() = Enemy_states{choose_up()};
                 }
@@ -97,7 +94,7 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::up) {
                     enemy.move(Dir::right);
 
-                    if (enemy.getx() >= right_distance)
+                    if (enemy.getx() >= static_cast<float>(M_ENEMY_MAX_COLLISION_RANGE_X))
                         enemy.mode() = Enemy_states::up_left;
                 }
                 else {
@@ -109,7 +106,7 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::up) {
                     enemy.move(Dir::left);
 
-                    if (enemy.getx() <= _Allowed_distance_from_corner)
+                    if (enemy.getx() <= static_cast<float>(M_ENEMY_COLLISION_RANGE))
                         enemy.mode() = Enemy_states::up_right;
                 }
                 else {
@@ -120,13 +117,13 @@ void Game_manager::move_enemies()
             case Enemy_states::down_right:
                 if (enemy.lastmove() == Dir::down) {
                     enemy.move(Dir::right);
-                    if (right_distance <= enemy.getx())
+                    if (static_cast<float>(M_ENEMY_MAX_COLLISION_RANGE_X) <= enemy.getx())
                         enemy.mode() = Enemy_states::down_left;
                 }
                 else {
                     enemy.move(Dir::down);
 
-                    if (enemy.gety() >= max_y)
+                    if (enemy.gety() >= static_cast<float>(M_MAX_DISTANCE_END))
                         enemy.mode() = Enemy_states{choose_up()};
                 }
                 break;
@@ -134,13 +131,13 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::down) {
                     enemy.move(Dir::left);
 
-                    if (enemy.getx() <= _Allowed_distance_from_corner)
+                    if (enemy.getx() <= static_cast<float>(M_ENEMY_COLLISION_RANGE))
                         enemy.mode() = Enemy_states::down_right;
                 }
                 else {
                     enemy.move(Dir::down);
 
-                    if (enemy.gety() >= max_y)
+                    if (enemy.gety() >= static_cast<float>(M_MAX_DISTANCE_END))
                         enemy.mode() = Enemy_states{choose_up()};
                 }
                 break;
@@ -192,7 +189,7 @@ void Game_manager::update()
 
 void Game_manager::restart()
 {
-    player = {static_cast<float>(_Player_initial_y), static_cast<float>(_Player_initial_x)};
+    player = {static_cast<float>(M_PLAYER_INIT_Y), static_cast<float>(M_PLAYER_INIT_X)};
     player_points = 0;
     enemies.clear();
     bullets.clear();
