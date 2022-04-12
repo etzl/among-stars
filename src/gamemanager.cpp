@@ -106,7 +106,7 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::up) {
                     enemy.move(Dir::left);
 
-                    if (enemy.getx() <= static_cast<float>(M_ENEMY_COLLISION_RANGE))
+                    if (enemy.getx() <= static_cast<float>(M_ENEMY_COLLISION_RANGE_X))
                         enemy.mode() = Enemy_states::up_right;
                 }
                 else {
@@ -131,7 +131,7 @@ void Game_manager::move_enemies()
                 if (enemy.lastmove() == Dir::down) {
                     enemy.move(Dir::left);
 
-                    if (enemy.getx() <= static_cast<float>(M_ENEMY_COLLISION_RANGE))
+                    if (enemy.getx() <= static_cast<float>(M_ENEMY_COLLISION_RANGE_X))
                         enemy.mode() = Enemy_states::down_right;
                 }
                 else {

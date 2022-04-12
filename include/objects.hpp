@@ -13,12 +13,12 @@ constexpr int _Enemy_maxhealth {1};
 #define _Player_shape R"(/_\)"
 constexpr short _Player_shape_len {1};
 constexpr short _Player_shape_col {3};
-constexpr short _Player_color {5};
+constexpr short _Player_color {5}; /* initialize at main.cpp */
 
 #define _Enemy_shape R"(>||<)"
 constexpr short _Enemy_shape_len {1};
 constexpr short _Enemy_shape_col {4};
-constexpr short _Enemy_color {6};
+constexpr short _Enemy_color {6}; /* initialize at main.cpp */
 
 
 class Bullet;
