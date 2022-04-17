@@ -18,7 +18,7 @@ class Drawable_obj {
          * \param win A window to draw on
          * \return void
          */
-        virtual void draw(WINDOW*) const =0;
+        virtual void draw() const =0;
 
         /** Vertical size of the shape
          * \return A non-negative integer indicating lines

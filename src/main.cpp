@@ -312,13 +312,16 @@ void draw()
 
     erase();
 
-    auto drw = [](const Drawable_obj& obj) { obj.draw(stdscr); };
+    Game_manager::player.draw();
 
-    drw(Game_manager::player);
+    auto obj_draw = [](const auto& obj) -> void {
+        obj.draw();
+    };
+
     std::for_each(Game_manager::enemies.begin(), Game_manager::enemies.end(),
-        drw);
+        obj_draw);
     std::for_each(Game_manager::bullets.begin(), Game_manager::bullets.end(),
-        drw);
+        obj_draw);
 
     // show player stats
     m_stats.draw();

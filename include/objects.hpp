@@ -78,11 +78,11 @@ class Player : public Interactable {
          * \param plac A window to draw on
          * \return void
          */
-        void draw(WINDOW* plac) const override
+        void draw() const override
         {
-            wattron(plac, COLOR_PAIR(_Player_color));
-            mvwaddstr(plac, static_cast<int>(y), static_cast<int>(x-1), _Player_shape);
-            wattroff(plac, COLOR_PAIR(_Player_color));
+            attron(COLOR_PAIR(_Player_color));
+            mvaddstr(static_cast<int>(y), static_cast<int>(x-1), _Player_shape);
+            attroff(COLOR_PAIR(_Player_color));
         }
 
         /** Vertical size, occupied by the player
@@ -131,11 +131,11 @@ class Enemy :public Interactable {
          * \param plac A window to draw on
          * \return void
          */
-        void draw(WINDOW* plac) const override
+        void draw() const override
         {
-            wattron(plac, COLOR_PAIR(_Enemy_color));
-            mvwaddstr(plac, static_cast<int>(y), static_cast<int>(x-2), _Enemy_shape);
-            wattroff(plac, COLOR_PAIR(_Enemy_color));
+            attron(COLOR_PAIR(_Enemy_color));
+            mvaddstr(static_cast<int>(y), static_cast<int>(x-2), _Enemy_shape);
+            attroff(COLOR_PAIR(_Enemy_color));
         }
 
         /** Vertical size, occupied by the enemy
