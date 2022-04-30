@@ -38,9 +38,9 @@ class Bullet :public Drawable_obj {
          * \param plac The window which we should draw on
          * \return void
          */
-        void draw(WINDOW* plac) const override  // should later be changed to perform on stdscr
+        void draw() const override  // should later be changed to perform on stdscr
         {
-            mvwaddch(plac, static_cast<int>(y), static_cast<int>(x), _Bullet_shape);
+            mvaddch(static_cast<int>(y), static_cast<int>(x), _Bullet_shape);
         }
 
     private:

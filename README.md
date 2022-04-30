@@ -28,9 +28,9 @@ Short for 'Health Point' and 'Kill Point'
 
 ## Compiling
 
-The game won't touch any files on the system (**no need to install**). It can easily be compiled and run in the directory.
+There's **no need to install** the game. It can be compiled and run in the same directory.
 
-Just install the dependencies and then run:
+After installing the dependencies, run:
 
 ```bash
 make
@@ -40,10 +40,18 @@ make run or ./among_stars
 ### Dependencies
 
 - GNU compiler that supports *C++17* or higher (version 9 or later)
-- ncurses library and header files
+- development ncurses library
 
 Packages on Debian (bullseye): `libncurses-dev` and `libncurses6`  
 This is probably the same on recent Debian distros and Debian derivatives (like Ubuntu 20.04 or higher).
+
+### Building on windows
+
+See #18
+
+The best and easiest way is probably using *WSL* as a first option, and then *Cygwin* (because the first one has microsoft support, and my own personal experience)
+
+As for building directly, I currently doesn't support it and I need more investigation. But feel free to open a PR to support it on windows, you can read what I've found in the issue mentioned above.
 
 ## Documentation
 
