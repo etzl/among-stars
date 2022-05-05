@@ -53,9 +53,9 @@ You have two options:
   - Using environments like [Cygwin](https://cygwin.com/) or [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
   - Build natively using [MSYS2](https://www.msys2.org/)
 
-See also https://github.com/etzl/among-stars/issues/18
-
 As for the first ones they "emulate" linux environment and "magically" make the program's functionality available under windows, the build instruction should be the same as for linux. But the second option *is* using ported tools such as `mingw-w64` under windows, so you'll be able to build the program natively.
+
+See https://github.com/etzl/among-stars/wiki/Build#on-windows for more details
 
 ## Documentation
 
