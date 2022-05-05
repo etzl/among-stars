@@ -41,17 +41,21 @@ make run or ./among_stars
 
 - GNU compiler that supports *C++17* or higher (version 9 or later)
 - development ncurses library
+- pthread library
 
 Packages on Debian (bullseye): `libncurses-dev` and `libncurses6`  
 This is probably the same on recent Debian distros and Debian derivatives (like Ubuntu 20.04 or higher).
 
-### Building on windows
+### On windows
 
-See #18
+You have two options:
 
-The best and easiest way is probably using *WSL* as a first option, and then *Cygwin* (because the first one has microsoft support, and my own personal experience)
+  - Using environments like [Cygwin](https://cygwin.com/) or [WSL](https://docs.microsoft.com/en-us/windows/wsl/install)
+  - Build natively using [MSYS2](https://www.msys2.org/)
 
-As for building directly, I currently doesn't support it and I need more investigation. But feel free to open a PR to support it on windows, you can read what I've found in the issue mentioned above.
+As for the first ones they "emulate" linux environment and "magically" make the program's functionality available under windows, the build instruction should be the same as for linux. But the second option *is* using ported tools such as `mingw-w64` under windows, so you'll be able to build the program natively.
+
+See https://github.com/etzl/among-stars/wiki/Build#on-windows for more details
 
 ## Documentation
 
